@@ -25,9 +25,30 @@ int main(int argc, char const *argv[]) {
 
     init_fail(janela, botao_sair, area_central, fila_eventos); //Funçao de teste
 
-    al_register_event_source(fila_eventos, al_get_mouse_event_source());
+    al_register_event_source(fila_eventos, al_get_display_event_source(janela));
 
-    al_flip_display();	//Atualiza a tela
+    al_flip_display();
+
+    while (1)
+    {
+        al_clear_to_color(al_map_rgb(255, 255, 255));
+
+        ALLEGRO_EVENT evento;
+        ALLEGRO_TIMEOUT timeout;
+        al_init_timeout(&timeout, 0.05);
+
+        int tem_eventos = al_wait_for_event_until(fila_eventos, &evento, &timeout);
+
+        if (tem_eventos && evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        {
+            break;
+        }
+
+        al_flip_display();
+    }
+
+    al_destroy_display(janela);
+    al_destroy_event_queue(fila_eventos);
 
     return 0;
 }
