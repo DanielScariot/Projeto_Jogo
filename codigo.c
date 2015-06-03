@@ -44,6 +44,13 @@ int main(int argc, char const *argv[]) {
             break;
         }
 
+        al_set_target_bitmap(area_central);
+        al_clear_to_color(al_map_rgb(255, 0, 0));
+        al_set_target_bitmap(al_get_backbuffer(janela));
+        al_draw_bitmap(area_central, LARGURA_TELA / 2 - al_get_bitmap_width(area_central) / 2,
+                        ALTURA_TELA / 2 - al_get_bitmap_height(area_central) / 2, 0);
+
+
         al_flip_display();
     }
 
