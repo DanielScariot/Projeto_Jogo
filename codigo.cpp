@@ -21,19 +21,13 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
+#include "constantes.h"
 #include "player.h"
-
-const int LARGURA_TELA = 640;
-const int ALTURA_TELA = 480;
-const int fps = 60;
-const int A = 20;
-const int B = 20;
-
+#include "arrays.h"
 
 int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_BITMAP *imagem, ALLEGRO_EVENT_QUEUE *fila_eventos);
 void init_system(Sistema &torre);
 void draw_tower(ALLEGRO_BITMAP *imagem, int pos_x, int pos_y);
-void draw_matrix(void);
 void coor_matrix(ALLEGRO_FONT *fonte);
 
 
@@ -45,28 +39,7 @@ int main(int argc, char const *argv[]) {
     bool click = false;
 
     Sistema torre;
-    char [27] = {'A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z'}
 
-      int mapa [A][B] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
     ALLEGRO_DISPLAY *janela = NULL;	//Variável para a janela
     ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;  //Variável para eventos
@@ -122,7 +95,6 @@ int main(int argc, char const *argv[]) {
 		}
 
         else if(evento.type == ALLEGRO_EVENT_TIMER){
-            draw_matrix();
             coor_matrix(fonte);
             al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i",i);
             i++;
@@ -154,30 +126,16 @@ int main(int argc, char const *argv[]) {
         al_draw_bitmap(imagem, pos_x, pos_y, 0);
     }
 
-    void draw_matrix(void){
-        int i;
-        int j = 0;
-        for (i=0;  i<24; i++) {
-            // Linha: x1, y1, x2, y2, cor, espessura
-            al_draw_line( 0,  0 + 20 * i, LARGURA_TELA, 20 * i, al_map_rgb(0, 255, 0), 1); // Linhas horizontais
-        }
 
-        /*
-        for (j=0;  j<34; j++) {
-            // Linha: x1, y1, x2, y2, cor, espessura
-            al_draw_line(0 + 20 * j, 0, 0 + 20 * j, ALTURA_TELA, al_map_rgb(255, 0, 0), 1); // Linhas verticais
-        }
-        */
-
-    }
 
     void coor_matrix(ALLEGRO_FONT *fonte){
         int i = 0;
         int j = 0;
-        for (i=0;  i<1; i++) {
+        for (i=0;  i<21; i++) {
             for(j=0; j <21; j++){
-        al_draw_line(0 + 34 * j, 0, 0 + 34 * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 1);;
-        al_draw_textf(fonte, al_map_rgb(0, 0, 0),34*j, 24*i, ALLEGRO_ALIGN_CENTRE, "       A%i",j+1);
+        al_draw_line(0 + 34 * j, 0, 0 + 34 * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 1);
+        al_draw_line( 0,  0 + 24 * i, LARGURA_TELA, 24 * i, al_map_rgb(0, 255, 0), 1);
+        al_draw_textf(fonte, al_map_rgb(0, 0, 0),34*j, 24*i, ALLEGRO_ALIGN_CENTRE, "    %c%i",letras[i], j+1);
         }
     }
     }
