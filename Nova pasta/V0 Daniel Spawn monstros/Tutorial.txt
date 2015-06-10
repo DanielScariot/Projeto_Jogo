@@ -1,0 +1,227 @@
+========================
+Header File
+========================
+#ifndef _GAMESTUFF_H
+#define _GAMESTUFF_H
+
+#include "allegro.h"
+
+// Monster function prototypes
+
+void drawmonster(int num);
+void erasemonster(int num);
+void movemonster(int num);
+void monsterexplode(int num);
+
+// define the monsters
+struct tagMonster
+{
+       int lifepoints;
+       int moneyvalue;
+       int walkspeed;
+       int xlocation;
+       int ylocation;
+       bool stillalive;
+       
+}monsters[10];
+#endif
+
+===================
+main.cpp
+===================
+#define ALLEGRO_STATICLINK
+
+#include <stdlib.h>
+#include "allegro.h"
+#include <GameStuff.h>
+
+int gamelevel = 1;
+int CitizenCounter = 10;
+int Money = 100;
+bool GameOver = false;
+int mx;
+int my;
+int mousebutton;
+
+// Game recordkeeping functions
+void UpdateCitizens()
+{
+    rectfill(screen,560,300,615,350,9);    
+    textprintf_ex(screen, font, 580, 320, 15,9,"%d",CitizenCounter);
+}
+void UpdateMoney()
+{
+     rectfill(screen,0,440,100,480,10);
+     textprintf_ex(screen,font,10,465,15,10,"Money Remaining: $%d",Money);
+}
+
+void movemonster(int n)
+{
+     if ((monsters[n].xlocation < 250) && (monsters[n].ylocation < 225))
+     {
+          monsters[n].ylocation++;
+     }
+     if ((monsters[n].xlocation < 250) && (monsters[n].ylocation == 225))
+     {
+          monsters[n].xlocation++;
+     }
+     if ((monsters[n].xlocation == 250) && (monsters[n].ylocation > 125))
+     {
+          monsters[n].ylocation--;
+     }
+     if ((monsters[n].xlocation < 425) && (monsters[n].ylocation == 125))
+     {
+          monsters[n].xlocation++;
+     }
+     if ((monsters[n].xlocation == 425) && (monsters[n].ylocation < 325))
+     {
+          monsters[n].ylocation++;
+     }
+     if ((monsters[n].xlocation < 530) && (monsters[n].ylocation == 325))
+     {
+          monsters[n].xlocation++;
+     }
+}
+
+void createmonster(int n)
+{
+     monsters[n].xlocation = 45;
+     monsters[n].ylocation = 0 - ((n - 1) * 50);
+     monsters[n].moneyvalue = gamelevel;
+     monsters[n].lifepoints = (gamelevel * 1.25);
+     monsters[n].walkspeed = 1000;
+     monsters[n].stillalive = true;     
+}
+
+void erasemonster(int n)
+{
+     circlefill(screen, monsters[n].xlocation, monsters[n].ylocation, 18, 6);
+}
+
+void drawmonster(int n)
+{
+     circlefill(screen, monsters[n].xlocation, monsters[n].ylocation, 18, 5);
+}
+
+void monsterexplode(int n)
+{
+     ;
+}
+
+
+int main()
+{
+    //Initialize Allegro
+    allegro_init();
+    
+    //Initialize keyboard
+    install_keyboard();
+    
+    //Install mouse
+    install_mouse();
+
+    //initialize video mode to 640x480
+    int ret = set_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480, 0, 0);
+    if(ret != 0) {
+           allegro_message(allegro_error);
+           return 1;
+           }
+
+    //Make the background green
+    rectfill(screen,0,0,640,480,10);
+    
+    //Draw the pathway
+    rectfill(screen,0,0,70,200,6);
+    rectfill(screen,0,200,230,250,6);
+    rectfill(screen,230,100,275,250,6);
+    rectfill(screen,275,100,400,150,6);
+    rectfill(screen,400,100,450,350,6);
+    rectfill(screen,450,300,550,350,6);
+    
+    //Draw the castle
+    rectfill(screen,550,290,625,365,0);
+    circlefill(screen,545,285,18,0);
+    circlefill(screen,545,370,18,0);
+    circlefill(screen,630,285,18,0);
+    circlefill(screen,630,370,18,0);
+    
+    //Draw the rectangle that will contain the citizens
+    rectfill(screen,560,300,615,350,9);
+    
+    //Draw the tower build section of the screen
+    rectfill(screen,0,400,200,435,9);
+    textprintf_ex(screen,font,5,415,15,9,"Click this area");
+    textprintf_ex(screen,font,5,425,15,9,"to build a tower");
+    
+    
+    //Draw the initial citizen total
+    UpdateCitizens();
+    
+    //Draw the starting money
+    UpdateMoney();
+    //Cause the program to show the mouse
+    show_mouse(screen);
+
+    while(!GameOver)
+    {
+    //This is the main game loop
+    
+         //Create the monsters
+         for(int x = 1; x < 11; x++)
+         {
+                 createmonster(x);
+         }
+         
+         //Internal game loop to handle monster movement, shooting, etc.
+         for(int walkcount = 0; walkcount < 1500; walkcount ++)
+         {
+//Did the player click on 'Build a tower'?
+          mx = mouse_x;
+          my = mouse_y;
+          if((mx < 200) && (mx > 0) && (my < 435) && (my > 400))
+          {
+          mousebutton = (mouse_b & 1);
+          if(mousebutton)
+          {
+               textprintf_ex(screen,font,5,415,9,9,"Click this area");
+               textprintf_ex(screen,font,5,425,9,9,"to build a tower");
+               textprintf_ex(screen,font,5,415,15,9,"Click any valid");
+               textprintf_ex(screen,font,5,425,15,9,"area to build a tower");
+          }
+          }                 
+                 rest(5);
+                 //Move the monsters
+                 for (int x = 0; x < 11; x++)
+                 {
+                     
+                     if (monsters[x].stillalive)
+                     {
+                          erasemonster(x);
+                          movemonster(x);
+                          drawmonster(x);
+                          if (monsters[x].xlocation > 529)
+                          {
+                               erasemonster(x);
+                               monsters[x].stillalive = false;
+                               monsters[x].xlocation = 0;
+                               monsters[x].ylocation = 0;
+                               CitizenCounter--;
+                               UpdateCitizens();
+                               if (CitizenCounter == 0)
+                               {
+                                    while(!key[KEY_ESC])
+                                   {
+                                         textprintf_ex(screen,font,310,240,15,10,"GAME OVER!! Press ESCape to Exit");
+                                    }
+//                                    GameOver = true;
+                               }
+                          }
+                      }
+                  }
+         }
+     }
+     //end program
+     allegro_exit();
+     return 0;
+}
+END_OF_MAIN();
