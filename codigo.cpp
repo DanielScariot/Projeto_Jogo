@@ -1,5 +1,5 @@
 /*   This is tower my defense game
-    Copyright (C) 2015  DSG & EKB
+    Copyright (C) 2015 by DSG & EKB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,15 +21,15 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
-#include "constantes.h"
-#include "player.h"
-#include "Monsters.h"
-#include "arrays.h"
+#include "constantes.h" //Variaveis constantes globais
+#include "player.h"     //Informaçoes do player
+#include "Monsters.h"   //Informaçoes dos mostros
+#include "arrays.h"     //Matrizes importantes
 
-int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_BITMAP *imagem, ALLEGRO_EVENT_QUEUE *fila_eventos);
-void init_system(Sistema &torre);
-void draw_tower(ALLEGRO_BITMAP *imagem, int pos_x, int pos_y);
-void coor_matrix(ALLEGRO_FONT *fonte);
+int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_BITMAP *imagem, ALLEGRO_EVENT_QUEUE *fila_eventos); //Funçao falha na inicializaçao
+void init_system(Sistema &torre); //Carrega informaçoes das torres
+void draw_tower(ALLEGRO_BITMAP *imagem, int pos_x, int pos_y); //desenha a torre
+void coor_matrix(ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
 
 
 int main(int argc, char const *argv[]) {
@@ -41,41 +41,46 @@ int main(int argc, char const *argv[]) {
 
     Sistema torre;
 
-    ALLEGRO_DISPLAY *janela = NULL;	//Variável para a janela
-    ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;  //Variável para eventos
-    ALLEGRO_BITMAP *imagem = NULL;
-    ALLEGRO_TIMER *timer = NULL;
-    ALLEGRO_FONT *fonte = NULL;
+    ALLEGRO_DISPLAY *janela = NULL;	            //Variável para a janela
+    ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;   //  ''     para eventos
+    ALLEGRO_BITMAP *imagem = NULL;              //  ''     para imagem
+    ALLEGRO_TIMER *timer = NULL;                //  ''     para o tempo (fps)
+    ALLEGRO_FONT *fonte = NULL;                 //  ''     para fonte
 
+    //Inicializa o allegro, mouse e add-ons
     al_init();
     al_install_mouse();
     al_init_image_addon();
     al_init_font_addon();
     al_init_ttf_addon();
 
+    //Atrbui atributos às variáveis allegro
     janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
     fila_eventos = al_create_event_queue();
     imagem = al_load_bitmap("porquinho.jpg");
     timer = al_create_timer(1.0 / fps);
     fonte = al_load_font("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", 12, 0);    //Fonte DejaVu
 
+    //Inicializa o mouse e tempo
     al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
     al_start_timer(timer);
 
     init_fail(janela, imagem, fila_eventos); //Funçao de teste
 
+    //Regista os eventos da janela, mouse e timer na variável de eventos (fila_eventos)
     al_register_event_source(fila_eventos, al_get_display_event_source(janela));
     al_register_event_source(fila_eventos, al_get_mouse_event_source());
     al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
 
-    init_system(torre);
-    al_clear_to_color(al_map_rgb(235, 235, 235));
-    al_flip_display();
+    init_system(torre);                             //Inicializa a torre
+    al_clear_to_color(al_map_rgb(235, 235, 235));   //Limpa a tela
+    al_flip_display();                              //Atualiza a tela
 
+    //Loop principal
     while (1)
     {
-        al_clear_to_color(al_map_rgb(235, 235, 235));
-        ALLEGRO_EVENT evento;
+        al_clear_to_color(al_map_rgb(235, 235, 235)); //Limpa a tela
+        ALLEGRO_EVENT evento;                         //Variavel para eventos
         al_wait_for_event(fila_eventos, &evento);
 
         if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -93,21 +98,23 @@ int main(int argc, char const *argv[]) {
 			pos_y = evento.mouse.y;
 		}
 
-        else if(evento.type == ALLEGRO_EVENT_TIMER){
+        else if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaçao
             coor_matrix(fonte);
             //al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i",i);
             i++;
             if(click == true){
-                draw_tower(imagem, pos_x, pos_y);
+                draw_tower(imagem, pos_x, pos_y);   //Desenha a torre (porquinho)
             }
 
             al_flip_display();
         }
     }
 
+    //Destroi as variáveis allegro
     al_destroy_display(janela);
     al_destroy_font(fonte);
     al_destroy_event_queue(fila_eventos);
+    al_destroy_bitmap(imagem);
 
     return 0;
 }
@@ -125,16 +132,14 @@ int main(int argc, char const *argv[]) {
         al_draw_bitmap(imagem, pos_x, pos_y, 0);
     }
 
-
-
     void coor_matrix(ALLEGRO_FONT *fonte){
         int i = 0;
         int j = 0;
         for (i=0;  i<21; i++) {
             for(j=0; j <21; j++){
-        al_draw_line(0 + 34 * j, 0, 0 + 34 * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 1);
-        al_draw_line( 0,  0 + 24 * i, LARGURA_TELA, 24 * i, al_map_rgb(0, 255, 0), 1);
-        al_draw_textf(fonte, al_map_rgb(0, 0, 0),34*j, 24*i, ALLEGRO_ALIGN_CENTRE, "      %c%i",letras[i], j+1);
+                al_draw_line(0 + 34 * j, 0, 0 + 34 * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 1);
+                al_draw_line( 0,  0 + 24 * i, LARGURA_TELA, 24 * i, al_map_rgb(0, 255, 0), 1);
+                al_draw_textf(fonte, al_map_rgb(0, 0, 0),34*j, 24*i, ALLEGRO_ALIGN_CENTRE, "      %c%i",letras[i], j+1);
         }
     }
     }
