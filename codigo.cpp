@@ -23,6 +23,7 @@
 #include <allegro5/allegro_primitives.h>
 #include "constantes.h"
 #include "player.h"
+#include "Monsters.h"
 #include "arrays.h"
 
 int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_BITMAP *imagem, ALLEGRO_EVENT_QUEUE *fila_eventos);
@@ -39,7 +40,6 @@ int main(int argc, char const *argv[]) {
     bool click = false;
 
     Sistema torre;
-
 
     ALLEGRO_DISPLAY *janela = NULL;	//Variável para a janela
     ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;  //Variável para eventos
@@ -82,7 +82,6 @@ int main(int argc, char const *argv[]) {
         {
             break;
         }
-
         else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
 			if(evento.mouse.button & 1)
@@ -96,7 +95,7 @@ int main(int argc, char const *argv[]) {
 
         else if(evento.type == ALLEGRO_EVENT_TIMER){
             coor_matrix(fonte);
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i",i);
+            //al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i",i);
             i++;
             if(click == true){
                 draw_tower(imagem, pos_x, pos_y);
@@ -135,7 +134,7 @@ int main(int argc, char const *argv[]) {
             for(j=0; j <21; j++){
         al_draw_line(0 + 34 * j, 0, 0 + 34 * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 1);
         al_draw_line( 0,  0 + 24 * i, LARGURA_TELA, 24 * i, al_map_rgb(0, 255, 0), 1);
-        al_draw_textf(fonte, al_map_rgb(0, 0, 0),34*j, 24*i, ALLEGRO_ALIGN_CENTRE, "    %c%i",letras[i], j+1);
+        al_draw_textf(fonte, al_map_rgb(0, 0, 0),34*j, 24*i, ALLEGRO_ALIGN_CENTRE, "      %c%i",letras[i], j+1);
         }
     }
     }
