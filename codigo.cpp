@@ -42,6 +42,7 @@ int main(int argc, char const *argv[]) {
 
     Sistema torre;
 
+    //Declaraçao vairáveis allegro
     ALLEGRO_DISPLAY *janela = NULL;	            //Variável para a janela
     ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;   //  ''     para eventos
     ALLEGRO_BITMAP *imagem = NULL;              //  ''     para imagem
@@ -55,7 +56,7 @@ int main(int argc, char const *argv[]) {
     al_init_font_addon();
     al_init_ttf_addon();
 
-    //Atrbui atributos às variáveis allegro
+    //Atribui atributos às variáveis allegro
     janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
     fila_eventos = al_create_event_queue();
     imagem = al_load_bitmap("porquinho.jpg");
@@ -116,6 +117,7 @@ int main(int argc, char const *argv[]) {
     al_destroy_font(fonte);
     al_destroy_event_queue(fila_eventos);
     al_destroy_bitmap(imagem);
+    al_destroy_timer(timer);
 
     return 0;
 }
@@ -136,13 +138,13 @@ int main(int argc, char const *argv[]) {
     void coor_matrix(ALLEGRO_FONT *fonte){
         int i = 0;
         int j = 0;
-        for (i=0;  i<21; i++) {
-            for(j=0; j <21; j++){
-                al_draw_line(0 + 34 * j, 0, 0 + 34 * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 1);
-                al_draw_line( 0,  0 + 24 * i, LARGURA_TELA, 24 * i, al_map_rgb(0, 255, 0), 1);
-                al_draw_textf(fonte, al_map_rgb(0, 0, 0),34*j, 24*i, ALLEGRO_ALIGN_CENTRE, "      %c%i",letras[i], j+1);
+        for (i=0;  i<A; i++) {
+            for(j=0; j<B; j++){
+                al_draw_line(0 + (LARGURA_TELA / B) * j, 0, 0 + (LARGURA_TELA / B) * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 1); //Linhas verticais
+                al_draw_line( 0,  0 + (ALTURA_TELA / A) * i, LARGURA_TELA, (ALTURA_TELA / A) * i, al_map_rgb(0, 255, 0), 1);       //Linhas horizontais
+                al_draw_textf(fonte, al_map_rgb(0, 0, 0),(LARGURA_TELA / B)*j, (ALTURA_TELA / A)*i, ALLEGRO_ALIGN_LEFT  , "%c%i",letras[j], i+1);
+            }
         }
-    }
     }
 
 
