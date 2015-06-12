@@ -30,7 +30,7 @@ int main(int argc, char const *argv[]) {
     int pos_x = 0;
     int pos_y = 0;
     int n_mostros = 10;
-    bool nova_horda = false;
+    bool nova_horda = true;
     bool GameOver = false;
 
     Sistema torre;
@@ -68,7 +68,6 @@ int main(int argc, char const *argv[]) {
     al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
 
     init_system(torre);
-
     horda(n_mostros);
 
 
@@ -88,7 +87,6 @@ int main(int argc, char const *argv[]) {
         {
             break;
         }
-
         /*
         else if(evento.type == ALLEGRO_EVENT_MOUSE_AXES)
 		{
@@ -98,30 +96,24 @@ int main(int argc, char const *argv[]) {
         */
         else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-            nova_horda = true;
+            horda(n_mostros);
         }
 
-        if(nova_horda){
-            horda(10);
-            nova_horda = false;
-                for (int x = 0; x < n_mostros; x++){
 
-                    if (Monstro[x].stillalive == true){
+        for(int x = 0; x < n_mostros; x++) {
+            if (Monstro[x].stillalive == true){
+                movemonster(x);
+                drawmonster(x, imagem);
 
-                        erasemonster(x);
-                        movemonster(x);
-                        drawmonster(x, imagem);
+                if (Monstro[x].xlocation > LARGURA_TELA){
+                    erasemonster(x);
 
-                        if (Monstro[x].xlocation > LARGURA_TELA){
-                            //erasemonster(x);
-                            Monstro[x].stillalive = false;
-                            Monstro[x].xlocation = 0;
-                            Monstro[x].ylocation = 0;
-                            nova_horda = false;
-                        }
-                    }
+                    //nova_horda = false;
                 }
             }
+        //nova_horda = false;
+        }
+
         if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaçao
             al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i", i);
             i++;
@@ -159,7 +151,7 @@ void coor_matrix(ALLEGRO_FONT *fonte){
     }
 }
 
-    void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer){
+void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer){
         al_destroy_display(janela);
         al_destroy_font(fonte);
         al_destroy_event_queue(fila_eventos);
@@ -233,10 +225,10 @@ void createmonster(int n){
 }
 
 void horda(int n){
-    for(int x = 1; x < n+1; x++){
+    for(int x = 0; x < n; x++){
             createmonster(x);
         }
-}
+    }
 
 void movemonster(int n){
 
@@ -260,6 +252,9 @@ void movemonster(int n){
 }
 
 void erasemonster(int n){
+    Monstro[n].stillalive = false;
+    Monstro[n].xlocation = 0;
+    Monstro[n].ylocation = 0;
     al_draw_filled_circle(Monstro[n].xlocation, Monstro[n].ylocation, 18, al_map_rgb(255, 255, 0));
 }
 
