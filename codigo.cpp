@@ -1,21 +1,4 @@
-/*   This is tower my defense game
-    Copyright (C) 2015 by DSG & EKB
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-//Inclusao das Bibliotecas
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -32,6 +15,12 @@ void init_system(Sistema &torre); //Carrega informaçoes das torres
 void draw_tower(ALLEGRO_BITMAP *imagem, int pos_x, int pos_y); //desenha a torre
 void coor_matrix(ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
 
+//Funçoes dos montros
+void createmonster(int n);
+void movemonster(int n);
+void erasemonster(int n);
+void drawmonster(int n);
+
 
 int main(int argc, char const *argv[]) {
 
@@ -39,8 +28,10 @@ int main(int argc, char const *argv[]) {
     int pos_x = 0;
     int pos_y = 0;
     bool click = false;
+    bool GameOver = false;
 
     Sistema torre;
+
 
     //Declaraçao vairáveis allegro
     ALLEGRO_DISPLAY *janela = NULL;	            //Variável para a janela
@@ -52,6 +43,7 @@ int main(int argc, char const *argv[]) {
     //Inicializa o allegro, mouse e add-ons
     al_init();
     al_install_mouse();
+    al_init_primitives_addon();
     al_init_image_addon();
     al_init_font_addon();
     al_init_ttf_addon();
@@ -74,14 +66,22 @@ int main(int argc, char const *argv[]) {
     al_register_event_source(fila_eventos, al_get_mouse_event_source());
     al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
 
-    init_system(torre);                             //Inicializa a torre
+    init_system(torre);
+
+    for(int x = 1; x < 11; x++)
+        {
+            createmonster(x);
+        }
+
     al_clear_to_color(al_map_rgb(235, 235, 235));   //Limpa a tela
+    al_draw_line(640,480, 0, 0, al_map_rgb(255, 255, 255), 1000);
     al_flip_display();                              //Atualiza a tela
 
     //Loop principal
-    while (1)
+    while (!GameOver)
     {
         al_clear_to_color(al_map_rgb(235, 235, 235)); //Limpa a tela
+        coor_matrix(fonte);
         ALLEGRO_EVENT evento;                         //Variavel para eventos
         al_wait_for_event(fila_eventos, &evento);
 
@@ -89,27 +89,47 @@ int main(int argc, char const *argv[]) {
         {
             break;
         }
-        else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
-		{
-			if(evento.mouse.button & 1)
-            click = !click;
-        }
-		else if(evento.type == ALLEGRO_EVENT_MOUSE_AXES)
+
+        else if(evento.type == ALLEGRO_EVENT_MOUSE_AXES)
 		{
 			pos_x = evento.mouse.x;
 			pos_y = evento.mouse.y;
 		}
 
-        else if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaçao
-            coor_matrix(fonte);
-            //al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i",i);
-            i++;
-            if(click == true){
-                draw_tower(imagem, pos_x, pos_y);   //Desenha a torre (porquinho)
-            }
+        else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+		{
+            click = !click;
+            al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "%i%i%i",pos_x, pos_y, click);
 
+        }
+
+            //Internal game loop to handle monster movement, shooting, etc.
+                //Move the Monstro
+                for (int x = 0; x < 11; x++)
+                {
+
+                    if (Monstro[x].stillalive == true)
+                    {
+                        erasemonster(x);
+                        movemonster(x);
+                        drawmonster(x);
+
+                        if (Monstro[x].xlocation > 529)
+                        {
+                            //erasemonster(x);
+                            Monstro[x].stillalive = false;
+                            Monstro[x].xlocation = 0;
+                            Monstro[x].ylocation = 0;
+                        }
+                    }
+
+                }
+        if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaçao
+            al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i, click: %i",i, click);
+            i++;
             al_flip_display();
         }
+
     }
 
     //Destroi as variáveis allegro
@@ -148,7 +168,7 @@ int main(int argc, char const *argv[]) {
     }
 
 
-    int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_BITMAP *imagem, ALLEGRO_EVENT_QUEUE *fila_eventos){
+int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_BITMAP *imagem, ALLEGRO_EVENT_QUEUE *fila_eventos){
     if (!al_init())
     {
         fprintf(stderr, "Falha ao inicializar a Allegro.\n");
@@ -190,4 +210,48 @@ int main(int argc, char const *argv[]) {
         return -1;
     }
 
+}
+
+void createmonster(int n)
+{
+    Monstro[n].xlocation = 45;
+    Monstro[n].ylocation = 0 - ((n - 1) * 50);
+    Monstro[n].health = 5;
+    Monstro[n].speed = 1;
+    Monstro[n].stillalive = true;
+}
+void movemonster(int n)
+{
+    if ((Monstro[n].xlocation < 250) && (Monstro[n].ylocation < 225))
+    {
+        Monstro[n].ylocation++;
+    }
+    if ((Monstro[n].xlocation < 250) && (Monstro[n].ylocation == 225))
+    {
+        Monstro[n].xlocation++;
+    }
+    if ((Monstro[n].xlocation == 250) && (Monstro[n].ylocation > 125))
+    {
+        Monstro[n].ylocation--;
+    }
+    if ((Monstro[n].xlocation < 425) && (Monstro[n].ylocation == 125))
+    {
+        Monstro[n].xlocation++;
+    }
+    if ((Monstro[n].xlocation == 425) && (Monstro[n].ylocation < 325))
+    {
+        Monstro[n].ylocation++;
+    }
+    if ((Monstro[n].xlocation < 530) && (Monstro[n].ylocation == 325))
+    {
+        Monstro[n].xlocation++;
+    }
+}
+void erasemonster(int n)
+{
+    al_draw_filled_circle(Monstro[n].xlocation, Monstro[n].ylocation, 18, al_map_rgb(255, 255, 0));
+}
+void drawmonster(int n)
+{
+    al_draw_filled_circle(Monstro[n].xlocation, Monstro[n].ylocation, 18, al_map_rgb(0, 0, 255));
 }
