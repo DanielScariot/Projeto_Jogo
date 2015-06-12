@@ -1,0 +1,4 @@
+Tentar fazer a movimentação na matriz;
+arrumar o problema do evento de sair;
+Colocar o sprite do monstro;
+Adicionar a quantidade de vida inicial e programar a perda dela ao chegar no final;
