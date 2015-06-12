@@ -1,5 +1,6 @@
 /*
 Arquivo dos arrays
+A = 20 e B = 20 -> constantes.h
 */
 
 
