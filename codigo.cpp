@@ -82,6 +82,7 @@ int main(int argc, char const *argv[]) {
     {
         ALLEGRO_EVENT evento;                         //Variavel para eventos
         al_wait_for_event(fila_eventos, &evento);
+<<<<<<< HEAD
 
         if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaçao
             i++;
@@ -90,6 +91,8 @@ int main(int argc, char const *argv[]) {
             update_horda(monstro, n_mostros);
         }
 
+=======
+>>>>>>> 4b6a384ba2fed2a5ad28d5acf80fd0080772d231
         if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         {
             GameOver = true;
