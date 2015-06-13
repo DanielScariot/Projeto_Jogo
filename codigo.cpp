@@ -1,28 +1,28 @@
 
+//Copyright (c) 2015 Copyright Holder All Rights Reserved.
+
 #include <stdio.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
-#include "constantes.h" //Variaveis constantes globais
-#include "player.h"     //Informaçoes do player
-#include "Monsters.h"   //Informaçoes dos mostros
+#include "constantes.h"  //Variaveis constantes globais
 #include "arrays.h"     //Matrizes importantes
+#include "structures.h"  //Estruturas
 
 int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Funçao falha na inicializaçao
 void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
 void init_system(Sistema &torre); //Carrega informaçoes das torres
 void draw_tower(ALLEGRO_BITMAP *imagem, int pos_x, int pos_y); //desenha a torre
-void coor_matrix(ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
+void coor_matrix(int mapa[A][B], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
+void a_coord(Coord coordenada[], ALLEGRO_FONT *fonte);
 
 //Funçoes dos montros
-void horda(int n);
-void createmonster(int n);
-void movemonster(int n);
-void erasemonster(int n);
-void drawmonster(int n, ALLEGRO_BITMAP *imagem);
-
+void init_horda(Monstro monstro[], int n_mostros);
+void start_horda(Monstro monstro[], int n_monstros);
+void update_horda(Monstro monstro[], int n_monstros);
+void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem);
 
 int main(int argc, char const *argv[]) {
 
@@ -32,8 +32,11 @@ int main(int argc, char const *argv[]) {
     int n_mostros = 10;
     bool nova_horda = true;
     bool GameOver = false;
+    bool render = false;
 
     Sistema torre;
+    Monstro monstro[n_mostros];
+    Coord coordenada[A*B];
 
     //Declaraçao vairáveis allegro
     ALLEGRO_DISPLAY *janela = NULL;	            //Variável para a janela
@@ -49,6 +52,10 @@ int main(int argc, char const *argv[]) {
     al_init_image_addon();
     al_init_font_addon();
     al_init_ttf_addon();
+
+    a_coord(coordenada, fonte);
+    init_horda(monstro, n_mostros);
+    init_system(torre);
 
     //Atribui atributos às variáveis allegro
     janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
@@ -67,58 +74,53 @@ int main(int argc, char const *argv[]) {
     al_register_event_source(fila_eventos, al_get_mouse_event_source());
     al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
 
-    init_system(torre);
-    horda(n_mostros);
-
-
     al_clear_to_color(al_map_rgb(235, 235, 235));   //Limpa a tela
-    al_draw_line(640,480, 0, 0, al_map_rgb(255, 255, 255), 1000);
     al_flip_display();                              //Atualiza a tela
 
     //Loop principal
     while (!GameOver)
     {
-        al_clear_to_color(al_map_rgb(235, 235, 235)); //Limpa a tela
-        coor_matrix(fonte);
         ALLEGRO_EVENT evento;                         //Variavel para eventos
         al_wait_for_event(fila_eventos, &evento);
 
+        if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaçao
+            i++;
+            render = true;
+
+            update_horda(monstro, n_mostros);
+        }
+
         if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         {
-            break;
+            GameOver = true;
         }
-        /*
+
         else if(evento.type == ALLEGRO_EVENT_MOUSE_AXES)
 		{
 			pos_x = evento.mouse.x;
 			pos_y = evento.mouse.y;
 		}
-        */
+
         else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-            horda(n_mostros);
+            start_horda(monstro, n_mostros);
         }
 
+		else if(render && al_is_event_queue_empty(fila_eventos))
+		{
+			render = false;
 
-        for(int x = 0; x < n_mostros; x++) {
-            if (Monstro[x].stillalive == true){
-                movemonster(x);
-                drawmonster(x, imagem);
-
-                if (Monstro[x].xlocation > LARGURA_TELA){
-                    erasemonster(x);
-
-                    //nova_horda = false;
-                }
-            }
-        //nova_horda = false;
-        }
-
-        if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaçao
+            coor_matrix(mapa, fonte);
             al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i", i);
-            i++;
+            al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "   x:%i y:%i", pos_x, pos_y);
+
+            draw_horda(monstro, n_mostros, imagem);
+
+            al_draw_textf(fonte, al_map_rgb(255, 0, 0), 5*l_celula, 7*a_celula + 15, ALLEGRO_ALIGN_LEFT, "%c%i", coordenada[5].letra, coordenada[7+1].numero);
+
             al_flip_display();
-        }
+			al_clear_to_color(al_map_rgb(255,255,255));
+		}
     }
 
     destroy_al(janela, fonte, fila_eventos, imagem, timer); //Destroi as variáveis allegro
@@ -135,79 +137,43 @@ void init_system(Sistema &torre) {
     torre.score = 0;
 }
 
-void draw_tower(ALLEGRO_BITMAP *imagem, int pos_x, int pos_y){
-    al_draw_bitmap(imagem, pos_x, pos_y, 0);
-    }
-
-void coor_matrix(ALLEGRO_FONT *fonte){
-    int i = 0;
-    int j = 0;
-    for (i=0;  i<A; i++) {
-        for(j=0; j<B; j++){
-            al_draw_line(0 + (LARGURA_TELA / B) * j, 0, 0 + (LARGURA_TELA / B) * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 1); //Linhas verticais
-            al_draw_line( 0,  0 + (ALTURA_TELA / A) * i, LARGURA_TELA, (ALTURA_TELA / A) * i, al_map_rgb(0, 255, 0), 1);       //Linhas horizontais
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0),(LARGURA_TELA / B)*j, (ALTURA_TELA / A)*i, ALLEGRO_ALIGN_LEFT  , "%c%i",letras[j], i+1);
-        }
-    }
-}
-
-void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer){
-        al_destroy_display(janela);
-        al_destroy_font(fonte);
-        al_destroy_event_queue(fila_eventos);
-        al_destroy_bitmap(imagem);
-        al_destroy_timer(timer);
-    }
-
 int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer){
-    if (!al_init())
-    {
+    if (!al_init()){
         fprintf(stderr, "Falha ao inicializar a Allegro.\n");
         return -1;
     }
-
-    if (!al_install_mouse())
-    {
+    if (!al_install_mouse()){
         fprintf(stderr, "Falha ao inicializar o mouse.\n");
         al_destroy_display(janela);
         return -1;
     }
-
-    if (!janela)
-    {
+    if (!janela){
         fprintf(stderr, "Falha ao criar janela.\n");
         return -1;
     }
-
-    if (!al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT))
-    {
+    if (!al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT)){
         fprintf(stderr, "Falha ao atribuir ponteiro do mouse.\n");
         al_destroy_display(janela);
         return -1;
     }
-
-    if (!imagem)
-    {
+    if (!imagem){
         fprintf(stderr, "Falha ao carregar imagem.\n");
         al_destroy_bitmap(imagem);
         al_destroy_display(janela);
         return -1;
     }
-
     if (!fila_eventos)
     {
         fprintf(stderr, "Falha ao inicializar o fila de eventos.\n");
         al_destroy_display(janela);
         return -1;
     }
-
     if(!fonte){
         fprintf(stderr, "Falha ao inicializar a fonte.\n");
         al_destroy_font(fonte);
         al_destroy_display(janela);
         return -1;
     }
-
     if(!timer){
         fprintf(stderr, "Falha ao inicializar o timer.\n");
         al_destroy_timer(timer);
@@ -216,49 +182,105 @@ int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE 
     }
 }
 
-void createmonster(int n){
-    Monstro[n].xlocation = 45;
-    Monstro[n].ylocation = 0 - ((n - 1) * 50);
-    Monstro[n].health = 5;
-    Monstro[n].speed = 5;
-    Monstro[n].stillalive = true;
+void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer){
+    al_destroy_display(janela);
+    al_destroy_font(fonte);
+    al_destroy_event_queue(fila_eventos);
+    al_destroy_bitmap(imagem);
+    al_destroy_timer(timer);
 }
 
-void horda(int n){
-    for(int x = 0; x < n; x++){
-            createmonster(x);
+void draw_tower(ALLEGRO_BITMAP *imagem, int pos_x, int pos_y){
+    al_draw_bitmap(imagem, pos_x, pos_y, 0);
+}
+
+void coor_matrix(int mapa[A][B], ALLEGRO_FONT *fonte){
+    int i = 0;
+    int j = 0;
+    int m_x = 0;
+    int m_y = 0;
+
+    for (i=0;  i<A; i++) {
+        for(j=0; j<B; j++){
+
+            switch (mapa[i][j]){
+                case 0:
+                    al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(255, 255, 255));
+                    break;
+                case 1:
+                    al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 255, 0));
+                    break;
+            }
+            al_draw_line(0 + (LARGURA_TELA / B) * j, 0, 0 + (LARGURA_TELA / B) * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 0); //Linhas verticais
+            al_draw_line( 0,  0 + (ALTURA_TELA / A) * i, LARGURA_TELA, (ALTURA_TELA / A) * i, al_map_rgb(0, 255, 0), 0);       //Linhas horizontais
+            al_draw_textf(fonte, al_map_rgb(0, 0, 0),(LARGURA_TELA / B)*j, (ALTURA_TELA / A)*i, ALLEGRO_ALIGN_LEFT, "%c%i",letras[j], i+1);
+
+            m_x += l_celula;
+        }
+    m_x = 0;
+    m_y += a_celula;
+    }
+}
+
+void a_coord(Coord coordenada[], ALLEGRO_FONT *fonte){
+    int i, j;
+
+    for (i=0;  i<A; i++){
+        for(j=0; j<B; j++){
+            coordenada[j].letra = letras[j];
+            coordenada[j].numero = j;
         }
     }
-
-void movemonster(int n){
-
-    if ((Monstro[n].xlocation < 250) && (Monstro[n].ylocation < 225))
-        Monstro[n].ylocation += Monstro[n].speed;
-
-    if ((Monstro[n].xlocation < 250) && (Monstro[n].ylocation == 225))
-        Monstro[n].xlocation+= Monstro[n].speed;
-
-    if ((Monstro[n].xlocation == 250) && (Monstro[n].ylocation > 125))
-        Monstro[n].ylocation+= Monstro[n].speed;
-
-    if ((Monstro[n].xlocation < 425) && (Monstro[n].ylocation == 125))
-        Monstro[n].xlocation+= Monstro[n].speed;
-
-    if ((Monstro[n].xlocation == 425) && (Monstro[n].ylocation < 325))
-        Monstro[n].ylocation+= Monstro[n].speed;
-
-    if ((Monstro[n].xlocation < LARGURA_TELA) && (Monstro[n].ylocation == 325))
-        Monstro[n].xlocation+= Monstro[n].speed;
+}
+void init_horda(Monstro monstro[], int n_mostros){
+    for(int i=0; i < n_mostros; i++){
+        monstro[i].stillalive = false;
+        monstro[i].health = 20;
+        monstro[i].speed = 2;
+        monstro[i].boundx = 18;
+        monstro[i].boundy = 18;
+    }
 }
 
-void erasemonster(int n){
-    Monstro[n].stillalive = false;
-    Monstro[n].xlocation = 0;
-    Monstro[n].ylocation = 0;
-    al_draw_filled_circle(Monstro[n].xlocation, Monstro[n].ylocation, 18, al_map_rgb(255, 255, 0));
+void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem){
+    for(int n=0; n < n_mostros; n++){
+        if(monstro[n].stillalive){
+            al_draw_bitmap(imagem, monstro[n].xlocation, monstro[n].ylocation, 0);
+            al_draw_filled_circle(monstro[n].xlocation, monstro[n].ylocation, 18, al_map_rgb(0, 0, 255));
+        }
+    }
 }
 
-void drawmonster(int n, ALLEGRO_BITMAP *imagem){
-    al_draw_bitmap(imagem, Monstro[n].xlocation, Monstro[n].ylocation, 0);
-    al_draw_filled_circle(Monstro[n].xlocation, Monstro[n].ylocation, 18, al_map_rgb(0, 0, 255));
+void start_horda(Monstro monstro[], int n_monstros){
+    for(int n = 0; n < n_monstros; n++){
+        if(!monstro[n].stillalive){
+            monstro[n].stillalive = true;
+            monstro[n].xlocation = 45;
+            monstro[n].ylocation = 0 - ((n - 1) * 50);
+            monstro[n].health = 5;
+        }
+    }
+}
+
+void update_horda(Monstro monstro[], int n_monstros){
+    for(int n = 0; n < n_monstros; n++){
+
+    if ((monstro[n].xlocation < 250) && (monstro[n].ylocation < 225))
+        monstro[n].ylocation += monstro[n].speed;
+
+    if ((monstro[n].xlocation < 250) && (monstro[n].ylocation > 225))
+        monstro[n].xlocation += monstro[n].speed;
+
+    if ((monstro[n].xlocation == 250) && (monstro[n].ylocation > 125))
+        monstro[n].ylocation += monstro[n].speed;
+
+    if ((monstro[n].xlocation < 425) && (monstro[n].ylocation > 125))
+        monstro[n].xlocation += monstro[n].speed;
+
+    if ((monstro[n].xlocation == 425) && (monstro[n].ylocation < 325))
+        monstro[n].ylocation += monstro[n].speed;
+
+    if ((monstro[n].xlocation < LARGURA_TELA) && (monstro[n].ylocation > 325))
+        monstro[n].xlocation += monstro[n].speed;
+    }
 }
