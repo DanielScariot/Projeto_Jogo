@@ -6,10 +6,9 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
-#include "constantes.h"  //Variaveis constantes globais
-#include "arrays.h"     //Matrizes importantes
+#include "constantes.h"  //Variaveis constantes globais     //Matrizes importantes
 #include "structures.h"  //Estruturas
-
+#include "arrays.h"
 int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Funçao falha na inicializaçao
 void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
 void init_system(Sistema &torre); //Carrega informaçoes das torres
@@ -17,11 +16,13 @@ void draw_tower(ALLEGRO_BITMAP *imagem, int pos_x, int pos_y); //desenha a torre
 void coor_matrix(int mapa[A][B], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
 void a_coord(Coord coordenada[], ALLEGRO_FONT *fonte);
 
+bool GameOver = false;
 //Funçoes dos montros
 void init_horda(Monstro monstro[], int n_mostros);
 void start_horda(Monstro monstro[], int n_monstros);
 void update_horda(Monstro monstro[], int n_monstros);
 void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem);
+
 
 int main(int argc, char const *argv[]) {
 
@@ -30,7 +31,6 @@ int main(int argc, char const *argv[]) {
     int pos_y = 0;
     int n_mostros = 10;
     bool nova_horda = true;
-    bool GameOver = false;
     bool render = false;
 
     Sistema torre;
@@ -246,7 +246,6 @@ void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem){
     for(int n=0; n < n_mostros; n++){
         if(monstro[n].stillalive){
             al_draw_bitmap(imagem, monstro[n].xlocation, monstro[n].ylocation, 0);
-            al_draw_filled_circle(monstro[n].xlocation, monstro[n].ylocation, 18, al_map_rgb(0, 0, 255));
         }
     }
 }
@@ -261,6 +260,7 @@ void start_horda(Monstro monstro[], int n_monstros){
                 {
                     if (mapa[x][y] == 6)
                     {
+                        printf("monstro %i criado", n);
                         monstro[n].xlocation = 0 - ((n - 1) *50);
                         monstro[n].ylocation = y*Tamanho_y;
                         break;
@@ -287,7 +287,7 @@ void update_horda(Monstro monstro[], int n_monstros){
                 int ym = roundf(ymf);
                 if(mapa[xm][ym] == 6)
                 {
-                        movimento = monstro[n].xlocation+=20;
+                        movimento = monstro[n].xlocation+=2;
                         break;
                 }
                 if(mapa[xm][ym] == 0)
@@ -297,24 +297,31 @@ void update_horda(Monstro monstro[], int n_monstros){
                 }
                 if(mapa[xm][ym] == 1)
                 {
-                        movimento = monstro[n].ylocation+=20;
+                        movimento = monstro[n].ylocation+=2;
                         break;
                 }
                 if(mapa[xm][ym] == 2)
                 {
-                        movimento = monstro[n].ylocation-=20;
+                        movimento = monstro[n].ylocation-=2;
                         break;
                 }
                 if(mapa[xm][ym] == 3)
                 {
-                        movimento = monstro[n].xlocation-=20;
+                        movimento = monstro[n].xlocation-=2;
                         break;
                 }
                 if(mapa[xm][ym] == 4)
                 {
-                        movimento = monstro[n].xlocation+=20;
+                        movimento = monstro[n].xlocation+=2;
                         break;
                 }
+                //if(xm > (LARGURA_TELA - 20))
+                //{
+                    //Sistema.lives--;
+                    //Função para apagar o monstro[n] da tela
+                    //printf("acabooo");
+                    //GameOver = true;
+                //}
 
             }
 
@@ -339,3 +346,4 @@ void update_horda(Monstro monstro[], int n_monstros){
         monstro[n].xlocation += monstro[n].speed;*/
     }
 }
+
