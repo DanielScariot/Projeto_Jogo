@@ -26,5 +26,5 @@ struct Monstro
 
 struct Coord{
 	int numero;
-	char letra;
+	char letra[2];
 };
