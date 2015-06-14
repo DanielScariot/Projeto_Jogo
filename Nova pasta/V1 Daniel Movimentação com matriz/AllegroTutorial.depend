@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1434249063 source:c:\users\michel\documents\allegrotutorial\allegrotutorial\main.cpp
+	<stdio.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"constantes.h"
+	"arrays.h"
+	"structures.h"
+
+1434238664 c:\users\michel\documents\allegrotutorial\allegrotutorial\constantes.h
+
+1434238664 c:\users\michel\documents\allegrotutorial\allegrotutorial\arrays.h
+
+1434238664 c:\users\michel\documents\allegrotutorial\allegrotutorial\structures.h
+
