@@ -301,6 +301,8 @@ void update_horda(Monstro monstro[], int n_monstros){
         float movimentox = 0;
         float movimentoy = 0;
         float xmo, ymo;
+        int xn = ceil(monstro[n].xlocation/(Tamanho_x + 1));
+        int yn = ceil(monstro[n].ylocation/(Tamanho_y + 1));
         int xm = monstro[n].xlocation/Tamanho_x;
         int ym = monstro[n].ylocation/Tamanho_y;
         //printf("\nmovimento = %f", movimento);
@@ -310,7 +312,7 @@ void update_horda(Monstro monstro[], int n_monstros){
             for(int y = 0; y < B ; y++)
             {
                 //printf("\n\n\nxm = %i   e   ym = %i\n\n\n",xm,ym);
-                if(mapa[ym][xm] == 6)
+                if(mapa[ym][xm] == 6 && mapa[yn][xn] != 5)
                 {
                         monstro[n].xlocation+=0.1;
                         xmo=0.1;
@@ -318,22 +320,23 @@ void update_horda(Monstro monstro[], int n_monstros){
                         //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
-                if(mapa[ym][xm] == 0)
+                if(mapa[ym][xm] == 0 && mapa[yn][xn] != 5)
                 {
                         monstro[n].xlocation+=xmo;
                         monstro[n].ylocation+=ymo;
                         //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
-                if(mapa[ym][xm] == 1)
+                if(mapa[ym][xm] == 1 && mapa[yn][xn] != 5)
                 {
                         monstro[n].ylocation+=0.1;
                         ymo = 0.1;
                         xmo = 0;
                         //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
+                        else if()
                 }
-                if(mapa[ym][xm] == 2)
+                if(mapa[ym][xm] == 2 && mapa[yn][xn] != 5)
                 {
                         monstro[n].ylocation-=0.1;
                         ymo = (-0.1);
@@ -341,7 +344,7 @@ void update_horda(Monstro monstro[], int n_monstros){
                         //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
-                if(mapa[ym][xm] == 3)
+                if(mapa[ym][xm] == 3 && mapa[yn][xn] != 5)
                 {
                         monstro[n].xlocation-=0.1;
                         xmo= (-0.1);
@@ -349,7 +352,7 @@ void update_horda(Monstro monstro[], int n_monstros){
                         //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
-                if(mapa[ym][xm] == 4)
+                if(mapa[ym][xm] == 4 && mapa[yn][xn] != 5)
                 {
                         monstro[n].xlocation+=0.1;
                         xmo=0.1;
