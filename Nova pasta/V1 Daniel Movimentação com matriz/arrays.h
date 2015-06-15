@@ -1,21 +1,24 @@
 
-char letras[27] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',' '};
+
+char letras[27] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', ' '};
 
 /*
 Explicaçao dos numeros na matriz:
-Numero 0 representa um caminho onde os monstros nao mudar�o sua rota, continuarao com o movimento anterior;
-Numero 1 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para baixo;
-Numero 2 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para cima;
-Numero 3 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para esquerda;
-Numero 4 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para direita;
-Numero 5 representa a parede que ir� beirar o caminho dos inimigos, nao ser� possivel criar torres nestes locais;
-Numero 6 representa o local onde os monstros ser�o criados (o local de spawn);
-Numero 7 representa o local onde torres poder�o ser constru�das;
+Numero 0 representa um caminho onde os monstros nao mudarao sua rota, continuarao com o movimento anterior;
+Numero 1 representa uma mudança na direçao, o monstro irá começar a ir para baixo;
+Numero 2 representa uma mudança na direçao, o monstro irá começar a ir para cima;
+Numero 3 representa uma mudança na direçao, o monstro irá começar a ir para esquerda;
+Numero 4 representa uma mudança na direçao, o monstro irá começar a ir para direita;
+Numero 5 representa a parede que irá beirar o caminho dos inimigos, nao será possivel criar torres nestes locais;
+Numero 6 representa o local onde os monstros serao criados (o local de spawn);
+Numero 7 representa o local onde torres poderao ser construídas;
 Numero 8 representa que existe uma torre naquele local;
+Numero 9 representa a torre do tipo 1;
+Numero 10 indica que existe uma torre do tipo 1;
 */
 int mapa[A][B] = {
-   //                                                    A A A A A A
-   //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F
+   //                                                    A A A A A A -- no cófigo: char a
+   //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F -- no código: char b
    //0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
     {5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //1
@@ -29,7 +32,7 @@ int mapa[A][B] = {
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //9
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //1
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //2
+    {0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //2
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //3
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //4
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //5
@@ -37,7 +40,7 @@ int mapa[A][B] = {
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //7
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //8
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //9
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,0}, //0
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //1
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //2
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,0}, //2
  };
