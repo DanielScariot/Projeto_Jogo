@@ -16,3 +16,21 @@
 
 1434238664 c:\users\michel\documents\allegrotutorial\allegrotutorial\structures.h
 
+1434327680 source:c:\users\michel\documents\github\projeto_jogo\nova pasta\v1 daniel movimentação com matriz\main.cpp
+	<stdio.h>
+	<math.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"constantes.h"
+	"structures.h"
+	"arrays.h"
+
+1434326918 c:\users\michel\documents\github\projeto_jogo\nova pasta\v1 daniel movimentação com matriz\constantes.h
+
+1434295507 c:\users\michel\documents\github\projeto_jogo\nova pasta\v1 daniel movimentação com matriz\structures.h
+
+1434328171 c:\users\michel\documents\github\projeto_jogo\nova pasta\v1 daniel movimentação com matriz\arrays.h
+

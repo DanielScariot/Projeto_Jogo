@@ -1,6 +1,5 @@
-/*
-Arquivo das constantes
-*/
+//Arquivo das constantes
+
 
 const int fps = 60;
 const int A = 23; //Linhas
