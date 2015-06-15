@@ -34,6 +34,8 @@ int main(int argc, char const *argv[]) {
     bool nova_horda = true;
     bool render = false;
 
+    printf("até aki");
+
     Sistema torre;
     Monstro monstro[n_mostros];
     Coord coordenada[A*B];
@@ -45,6 +47,7 @@ int main(int argc, char const *argv[]) {
     ALLEGRO_TIMER *timer = NULL;                //  ''     para o tempo (fps)
     ALLEGRO_FONT *fonte = NULL;                 //  ''     para fonte
 
+    printf("até aki 2");
     //Inicializa o allegro, mouse e add-ons
     al_init();
     al_install_mouse();
@@ -52,45 +55,61 @@ int main(int argc, char const *argv[]) {
     al_init_image_addon();
     al_init_font_addon();
     al_init_ttf_addon();
-
+    printf("até aki 3");
     a_coord(coordenada, fonte);
     init_horda(monstro, n_mostros);
     init_system(torre);
+<<<<<<< HEAD
+    printf("até aki 4");
+    //Atribui atributos às variáveis allegro
+=======
 
     //Atribui atributos Ã s variÃ¡veis allegro
+>>>>>>> 0862e143eea4dda096567e5be7f568e98e1a0966
     janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
     fila_eventos = al_create_event_queue();
     imagem = al_load_bitmap("virus.png");
     timer = al_create_timer(1.0 / fps);
     fonte = al_load_font("arial.ttf", 12, 0);    //Fonte DejaVu
-
+    printf("até aki 5");
     //Inicializa o mouse e tempo
     al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
     al_start_timer(timer);
+<<<<<<< HEAD
+    init_fail(janela, fonte, fila_eventos, imagem, timer); //Funçao de teste
+    printf("até aki 6\n");
+    //Regista os eventos da janela, mouse e timer na variável de eventos (fila_eventos)
+=======
     init_fail(janela, fonte, fila_eventos, imagem, timer); //Funï¿½ao de teste
 
     //Regista os eventos da janela, mouse e timer na variï¿½vel de eventos (fila_eventos)
+>>>>>>> 0862e143eea4dda096567e5be7f568e98e1a0966
     al_register_event_source(fila_eventos, al_get_display_event_source(janela));
     al_register_event_source(fila_eventos, al_get_mouse_event_source());
     al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
-
+    printf("até aki 7\n");
     al_clear_to_color(al_map_rgb(235, 235, 235));   //Limpa a tela
     al_flip_display();                              //Atualiza a tela
-
+    printf("até aki 8\n");
     //Loop principal
     while (!GameOver)
     {
         ALLEGRO_EVENT evento;                         //Variavel para eventos
         al_wait_for_event(fila_eventos, &evento);
+<<<<<<< HEAD
+        printf("até aki 9\n");
+        if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaçao
+=======
 
         if(evento.type == ALLEGRO_EVENT_TIMER){ //Evento de renderizaï¿½ao
+>>>>>>> 0862e143eea4dda096567e5be7f568e98e1a0966
             i++;
             render = true;
-
+            printf("até aki 10\n");
             update_horda(monstro, n_mostros);
         }
 
-
+        printf("até aki 11\n");
         if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         {
             GameOver = true;
@@ -100,18 +119,25 @@ int main(int argc, char const *argv[]) {
 		{
 			pos_x = evento.mouse.x;
 			pos_y = evento.mouse.y;
+			printf("até aki 11\n");
 		}
 
         else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
             start_horda(monstro, n_mostros);
+            printf("até aki 12\n");
         }
 
 		else if(render && al_is_event_queue_empty(fila_eventos))
 		{
 			render = false;
+<<<<<<< HEAD
+            printf("até aki 14\n");
+            coor_matrix(mapa, fonte);
+=======
 
             coor_matrix(mapa, coordenada, fonte);
+>>>>>>> 0862e143eea4dda096567e5be7f568e98e1a0966
             al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i", i);
             al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "   x:%i y:%i", pos_x, pos_y);
 
@@ -210,6 +236,39 @@ void coor_matrix(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte){
 
     for (i=0;  i<A; i++) {
 
+<<<<<<< HEAD
+            switch (mapa[i][j]){
+                case 0:
+                    al_draw_filled_rectangle(j*Tamanho_x , i*Tamanho_y, ((j+1) * Tamanho_x) - 1,((i+1) * Tamanho_y) -1, al_map_rgb(0, 0, 255));
+                    break;
+                case 1:
+                    al_draw_filled_rectangle(j*Tamanho_x , i*Tamanho_y, ((j+1) * Tamanho_x) - 1,((i+1) * Tamanho_y) -1, al_map_rgb(0, 0, 255));
+                    break;
+                case 2:
+                    al_draw_filled_rectangle(j*Tamanho_x , i*Tamanho_y, ((j+1) * Tamanho_x) - 1,((i+1) * Tamanho_y) -1, al_map_rgb(0, 0, 255));
+                    break;
+                case 3:
+                    al_draw_filled_rectangle(j*Tamanho_x , i*Tamanho_y, ((j+1) * Tamanho_x) - 1,((i+1) * Tamanho_y) -1, al_map_rgb(0, 0, 255));
+                    break;
+                case 4:
+                    al_draw_filled_rectangle(j*Tamanho_x , i*Tamanho_y, ((j+1) * Tamanho_x) - 1,((i+1) * Tamanho_y) -1, al_map_rgb(0, 0, 255));
+                    break;
+                case 5:
+                    al_draw_filled_rectangle(j*Tamanho_x , i*Tamanho_y, ((j+1) * Tamanho_x) - 1,((i+1) * Tamanho_y) -1, al_map_rgb(0, 255, 0));
+                    break;
+                case 6:
+                    al_draw_filled_rectangle(j*Tamanho_x , i*Tamanho_y, ((j+1) * Tamanho_x) - 1,((i+1) * Tamanho_y) -1, al_map_rgb(255, 255, 0));
+                    break;
+            }
+            al_draw_line(0 + (LARGURA_TELA / B) * j, 0, 0 + (LARGURA_TELA / B) * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 0); //Linhas verticais
+            al_draw_line( 0,  0 + (ALTURA_TELA / A) * i, LARGURA_TELA, (ALTURA_TELA / A) * i, al_map_rgb(0, 255, 0), 0);       //Linhas horizontais
+            //al_draw_textf(fonte, al_map_rgb(0, 0, 0),(LARGURA_TELA / B)*j, (ALTURA_TELA / A)*i, ALLEGRO_ALIGN_LEFT, "%c%i",letras[j], i+1);
+
+            //m_x += l_celula;
+        }
+    //m_x = 0;
+    //m_y += a_celula;
+=======
             for(j=0; j<B; j++){
 
                 switch (mapa[i][j]){
@@ -244,6 +303,7 @@ void coor_matrix(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte){
     l = 26;
     m_x = 0;
     m_y += a_celula;
+>>>>>>> 0862e143eea4dda096567e5be7f568e98e1a0966
     }
 }
 
@@ -298,11 +358,12 @@ void start_horda(Monstro monstro[], int n_monstros){
             {
                 for(int y=0;y<B;y++)
                 {
-                    if (mapa[x][y] == 6)
+                    if (mapa[y][x] == 6)
                     {
                         printf("monstro %i criado", n);
-                        monstro[n].xlocation = 0 - ((n - 1) *50);
+                        monstro[n].xlocation = 0 - ((n - 1) *30);
                         monstro[n].ylocation = y*Tamanho_y;
+                        printf("monstro %i xlocation = %f", n, monstro[n].xlocation);
                         break;
                     }
                 }
@@ -316,43 +377,67 @@ void start_horda(Monstro monstro[], int n_monstros){
 
 void update_horda(Monstro monstro[], int n_monstros){
     for(int n = 0; n < n_monstros; n++){
-        float movimento;
+        //al_rest(0.01);
+        float movimentox = 0;
+        float movimentoy = 0;
+        float xmo, ymo;
+        int xn = ceil(monstro[n].xlocation/(Tamanho_x + 1));
+        int yn = ceil(monstro[n].ylocation/(Tamanho_y + 1));
+        int xm = monstro[n].xlocation/Tamanho_x;
+        int ym = monstro[n].ylocation/Tamanho_y;
+        //printf("\nmovimento = %f", movimento);
+        //printf("\n\nO monstro %i\nym = %i e xm = %i\n\n",n,xm,ym);
         for(int x = 0; x < A ; x++)
         {
             for(int y = 0; y < B ; y++)
             {
-                float xmf = monstro[n].xlocation/Tamanho_x;
-                float ymf = monstro[n].ylocation/Tamanho_y;
-                int xm = roundf(xmf);
-                int ym = roundf(ymf);
-                if(mapa[xm][ym] == 6)
+                //printf("\n\n\nxm = %i   e   ym = %i\n\n\n",xm,ym);
+                if(mapa[ym][xm] == 6 && mapa[yn][xn] != 5)
                 {
-                        movimento = monstro[n].xlocation+=2;
+                        monstro[n].xlocation+=0.1;
+                        xmo=0.1;
+                        ymo=0;
+                        //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
-                if(mapa[xm][ym] == 0)
+                if(mapa[ym][xm] == 0 && mapa[yn][xn] != 5)
                 {
-                        movimento = movimento;
+                        monstro[n].xlocation+=xmo;
+                        monstro[n].ylocation+=ymo;
+                        //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
-                if(mapa[xm][ym] == 1)
+                if(mapa[ym][xm] == 1 && mapa[yn][xn] != 5)
                 {
-                        movimento = monstro[n].ylocation+=2;
+                        monstro[n].ylocation+=0.1;
+                        ymo = 0.1;
+                        xmo = 0;
+                        //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
+                        break;
+                        else if()
+                }
+                if(mapa[ym][xm] == 2 && mapa[yn][xn] != 5)
+                {
+                        monstro[n].ylocation-=0.1;
+                        ymo = (-0.1);
+                        xmo = 0;
+                        //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
-                if(mapa[xm][ym] == 2)
+                if(mapa[ym][xm] == 3 && mapa[yn][xn] != 5)
                 {
-                        movimento = monstro[n].ylocation-=2;
+                        monstro[n].xlocation-=0.1;
+                        xmo= (-0.1);
+                        ymo = 0;
+                        //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
-                if(mapa[xm][ym] == 3)
+                if(mapa[ym][xm] == 4 && mapa[yn][xn] != 5)
                 {
-                        movimento = monstro[n].xlocation-=2;
-                        break;
-                }
-                if(mapa[xm][ym] == 4)
-                {
-                        movimento = monstro[n].xlocation+=2;
+                        monstro[n].xlocation+=0.1;
+                        xmo=0.1;
+                        ymo = 0;
+                        //printf("\nmonstro [%i] com movimento detectado de = %f\n", n, movimento);
                         break;
                 }
                 //if(xm > (LARGURA_TELA - 20))
