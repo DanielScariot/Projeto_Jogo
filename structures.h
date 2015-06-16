@@ -1,15 +1,33 @@
 //Object IDs
-enum IDS{PLAYER, BULLET, ENEMY};
+enum IDS{PLAYER, BULLET, ENEMY, TOWER};
 
 //Our Player
 struct Sistema
 {
+	int ID;
 	int x;
 	int y;
 	int lives;
 	int boundx;
 	int boundy;
 	int score;
+};
+
+struct Torre{
+	int ID;
+	int xlocation;
+	int ylocation;
+	int fire_power;
+	int fire_rate;
+	int range;
+};
+
+struct Tiro{
+	int xlocation;
+	int ylocation;
+	int fire_power;
+	int speed;
+	bool live;
 };
 
 struct Monstro
@@ -26,5 +44,5 @@ struct Monstro
 
 struct Coord{
 	int numero;
-	char letra;
+	char letra[2];
 };
