@@ -133,11 +133,10 @@ int main(int argc, char const *argv[]) {
                 if (mapa[pos_y/a_celula][pos_x/l_celula] != 9){
                     mapa[pos_y/a_celula][pos_x/l_celula] = 10;
                     torre_mouse = false;
+                    //start_horda(monstro, 10);
                 }
             }
             click = !click;
-
-            //tart_horda(monstro, 10);
 
         }
 
