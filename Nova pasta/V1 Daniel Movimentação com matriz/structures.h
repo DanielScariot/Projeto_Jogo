@@ -12,13 +12,20 @@ struct Sistema
 	int score;
 };
 
+struct Torre{
+	int ID;
+	int firepower;
+	int fire_speed;
+	int range;
+};
+
 struct Monstro
 {
     int ID;
     int health;         //VIDA DO MONSTRO
     int speed;          //VELOCIDADE DO MONSTRO
-    float xlocation;      //LOCALIZA��O X DO MONSTRO
-    float ylocation;      //LOCALIZA��O Y DO MONSTRO
+    int xlocation;      //LOCALIZA��O X DO MONSTRO
+    int ylocation;      //LOCALIZA��O Y DO MONSTRO
     bool stillalive;    //TRUE = VIVO    FALSE = MORTO
     int boundx;
     int boundy;
