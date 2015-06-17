@@ -147,12 +147,14 @@ int main(int argc, char const *argv[]) {
                 if (mapa[pos_y/a_celula][pos_x/l_celula] != 9){
                     mapa[pos_y/a_celula][pos_x/l_celula] = 10;
                     torre_mouse = false;
+                    torre[t].xlocation = pos_x/l_celula;
+                    torre[t].ylocation = pos_y/a_celula;
                     t++;
 
                 }
             }
             click = !click;
-            FireTiro(tiro, torre, t);
+            FireTiro(tiro, torre, t-1);
 
 
         }
@@ -169,7 +171,7 @@ int main(int argc, char const *argv[]) {
             //draw_horda(monstro, n_mostros, imagem);
 
             al_draw_textf(fonte, al_map_rgb(255, 0, 0), 5*l_celula, 7*a_celula + 15, ALLEGRO_ALIGN_LEFT, "%c%i", coordenada[5].letra[0], coordenada[7+1].numero);
-            al_draw_textf(fonte, al_map_rgb(255, 0, 0), 5*l_celula, 15*a_celula + 15, ALLEGRO_ALIGN_LEFT, "AQUI!!!%i/%i", torre[t-1].xlocation, torre[t-1].ylocation);
+            al_draw_textf(fonte, al_map_rgb(255, 0, 0), 5*l_celula, 15*a_celula + 15, ALLEGRO_ALIGN_LEFT, "AQUI!!!%i/%i", torre[t].xlocation, torre[t].ylocation);
 
             if(torre_mouse){
                 draw_tower(r, l, torre, t);
@@ -252,9 +254,6 @@ void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
 
 void draw_tower(int r, int l, Torre torre[], int t){
     al_draw_filled_circle(r*l_celula + (l_celula/2), l*a_celula + (a_celula/2), l_celula/2, al_map_rgb(150, 50, 0));
-    torre[t].xlocation = r;
-    torre[t].ylocation = l;
-
 }
 
 void coor_matrix(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte){
@@ -467,8 +466,8 @@ void update_horda(Monstro monstro[], int n_monstros){
 
 void initTorre(Torre torre[], int t){
     torre[t].ID;
-    torre[t].xlocation = 150;
-    torre[t].ylocation = 300;
+    torre[t].xlocation;
+    torre[t].ylocation;
 	torre[t].fire_power = 10;
 	torre[t].fire_rate = 2;
 	torre[t].range = 20;
