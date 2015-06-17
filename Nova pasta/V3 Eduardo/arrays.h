@@ -2,19 +2,20 @@
 char letras[27] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
 /*
-Explicação dos numeros na matriz:
-Numero 0 representa um caminho onde os monstros nao mudarão sua rota, continuarao com o movimento anterior;
-Numero 1 representa uma mudança na direção, o monstro irá começar a ir para baixo;
-Numero 2 representa uma mudança na direção, o monstro irá começar a ir para cima;
-Numero 3 representa uma mudança na direção, o monstro irá começar a ir para esquerda;
-Numero 4 representa uma mudança na direção, o monstro irá começar a ir para direita;
-Numero 5 representa a parede que irá beirar o caminho dos inimigos, nao será possivel criar torres nestes locais;
-Numero 6 representa o local onde os monstros serão criados (o local de spawn);
-Numero 7 representa o local onde torres poderão ser construídas;
+Explicaï¿½ï¿½o dos numeros na matriz:
+Numero 0 representa um caminho onde os monstros nao mudarï¿½o sua rota, continuarao com o movimento anterior;
+Numero 1 representa uma mudanï¿½a na direï¿½ï¿½o, o monstro irï¿½ comeï¿½ar a ir para baixo;
+Numero 2 representa uma mudanï¿½a na direï¿½ï¿½o, o monstro irï¿½ comeï¿½ar a ir para cima;
+Numero 3 representa uma mudanï¿½a na direï¿½ï¿½o, o monstro irï¿½ comeï¿½ar a ir para esquerda;
+Numero 4 representa uma mudanï¿½a na direï¿½ï¿½o, o monstro irï¿½ comeï¿½ar a ir para direita;
+Numero 5 representa a parede que irï¿½ beirar o caminho dos inimigos, nao serï¿½ possivel criar torres nestes locais;
+Numero 6 representa o local onde os monstros serï¿½o criados (o local de spawn);
+Numero 7 representa o local onde torres poderï¿½o ser construï¿½das;
 Numero 8 representa que existe uma torre naquele local;
 */
 int mapa[A][B] = {
-   //A B C D E F G H I J K L M N O P Q R S T
+   //                                                    A A A A A A
+   //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F
    //0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1
     {0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
     {5,5,5,5,5,5,5,0,5,4,4,4,4,4,4,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //1
@@ -26,17 +27,17 @@ int mapa[A][B] = {
     {0,0,0,0,5,4,4,4,4,2,5,0,0,0,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //7
     {0,0,0,0,5,5,5,5,5,5,5,0,0,0,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //8
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //9
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
-    {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //1
-    {0,0,0,0,0,0,0,0,0,0,5,1,3,3,3,3,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //2
-    {0,0,0,0,0,0,0,0,0,0,5,1,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //3
-    {0,0,0,0,0,0,0,0,0,0,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4}, //4
-    {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //5
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //6
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //7
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //8
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //9
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0}, //1
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //2
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //10
+    {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //11
+    {0,0,0,0,0,0,0,0,0,0,5,1,3,3,3,3,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //12
+    {0,0,0,0,0,0,0,0,0,0,5,1,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //13
+    {0,0,0,0,0,0,0,0,0,0,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4}, //14
+    {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //15
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //16
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //17
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //18
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //19
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //20
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0}, //21
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //22
  };

@@ -5,9 +5,9 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
-#include "constantes.h"  //Variaveis constantes globais     //Matrizes importantes
+#include "constantes.h"  //Variaveis constantes globais
 #include "structures.h"  //Estruturas
-#include "arrays.h"
+#include "arrays.h"      //Matrizes importantes
 
 int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Fun�ao falha na inicializa�ao
 void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
@@ -103,6 +103,8 @@ int main(int argc, char const *argv[]) {
     al_clear_to_color(al_map_rgb(235, 235, 235));   //Limpa a tela
     al_flip_display();                              //Atualiza a tela
 
+    //start_horda(monstro, 10);
+
     //Loop principal
     while (!GameOver)
     {
@@ -146,7 +148,7 @@ int main(int argc, char const *argv[]) {
                     mapa[pos_y/a_celula][pos_x/l_celula] = 10;
                     torre_mouse = false;
                     t++;
-                    //start_horda(monstro, 10);
+
                 }
             }
             click = !click;
@@ -296,7 +298,7 @@ void coor_matrix(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte){
             al_draw_line(0 + l_celula * j, 0, 0 + l_celula * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 0); //Linhas verticais
             al_draw_line( 0,  0 + a_celula * i, LARGURA_TELA, a_celula * i, al_map_rgb(0, 255, 0), 0);       //Linhas horizontais
 
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), l_celula * j, a_celula * i, ALLEGRO_ALIGN_LEFT, "%c%c%i", coordenada[j].letra[0], coordenada[j].letra[1], coordenada[i].numero + 1);
+            // al_draw_textf(fonte, al_map_rgb(0, 0, 0), l_celula * j, a_celula * i, ALLEGRO_ALIGN_LEFT, "%c%c%i", coordenada[j].letra[0], coordenada[j].letra[1], coordenada[i].numero + 1);
             m_x += l_celula;
         }
     m_x = 0;
