@@ -289,3 +289,21 @@
 1372628331 c:\allegro\include\allegro5\allegro_primitives.h
 	<allegro5/allegro.h>
 
+1434645443 source:c:\users\aluno\documents\github\projeto_jogo\nova pasta\v4 daniel e eduardo - mov. torres. tiros\main.cpp
+	<stdio.h>
+	<math.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"constantes.h"
+	"structures.h"
+	"arrays.h"
+
+1434645443 c:\users\aluno\documents\github\projeto_jogo\nova pasta\v4 daniel e eduardo - mov. torres. tiros\constantes.h
+
+1434645443 c:\users\aluno\documents\github\projeto_jogo\nova pasta\v4 daniel e eduardo - mov. torres. tiros\structures.h
+
+1434645443 c:\users\aluno\documents\github\projeto_jogo\nova pasta\v4 daniel e eduardo - mov. torres. tiros\arrays.h
+

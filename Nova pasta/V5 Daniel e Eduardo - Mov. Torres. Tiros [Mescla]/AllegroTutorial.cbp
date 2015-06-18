@@ -31,7 +31,11 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="C:/allegro/include" />
 		</Compiler>
+		<Linker>
+			<Add library="C:\allegro\lib\liballegro-5.0.10-monolith-mt.a" />
+		</Linker>
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
