@@ -33,8 +33,7 @@ struct Torre{
 	struct Tiro tiro;
 };
 
-struct Monstro
-{
+struct Monstro{
     int ID;
     int health;         //VIDA DO MONSTRO
     int speed;          //VELOCIDADE DO MONSTRO

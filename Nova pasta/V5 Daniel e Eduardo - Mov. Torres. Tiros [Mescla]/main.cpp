@@ -21,21 +21,21 @@ bool GameOver = false;
 //Funçoes dos montros
 void init_horda(Monstro monstro[], int n_mostros);
 void start_horda(Monstro monstro[], int n_monstros);
-void update_horda(Monstro monstro[], int n_monstros);
+void update_horda(Monstro monstro[], int mapa[A][B], int n_monstros);
 void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem);
+void colisao_horda(Tiro tiro[], Monstro monstro[], int n_monstros);
 
 void initTorre(Torre torre[], Tiro tiro[], int t);
 
 void drawTiro(Tiro tiro[], int t);
-void FireTiro(Tiro tiro[], Torre torre[], int t, Monstro monstro[]);
-void UpdateTiro(Tiro tiro[], int t, Monstro monstro[]);
+void FireTiro(Tiro tiro[], Torre torre[], Monstro monstro[], int t);
+void UpdateTiro(Tiro tiro[], Monstro monstro[], int t);
 
 
 int main(int argc, char const *argv[])
 {
-
     int i = 0;
-    int t = 0;
+    int t = 1;
 
     int n_mostros = 10;
     bool click = false;
@@ -108,13 +108,14 @@ int main(int argc, char const *argv[])
 
         if(evento.type == ALLEGRO_EVENT_TIMER)  //Evento de renderiza�ao
         {
-
             i++;
             render = true;
 
-            FireTiro(tiro, torre, t-1, monstro);
-            UpdateTiro(tiro, t-1, monstro);
-            update_horda(monstro, n_mostros);
+            FireTiro(tiro, torre, monstro, t-1);
+            UpdateTiro(tiro, monstro, t-1);
+            update_horda(monstro, mapa, n_mostros);
+            colisao_horda(tiro, monstro, n_mostros);
+
         }
 
         if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -159,7 +160,7 @@ int main(int argc, char const *argv[])
             switch(evento.keyboard.keycode)
             {
             case ALLEGRO_KEY_SPACE:
-                start_horda(monstro, 10);
+                start_horda(monstro, n_mostros);
                 break;
             }
         }
@@ -361,117 +362,105 @@ int conversao_coordenadas(Coord coordenada[], char a, char b)
 
 void init_horda(Monstro monstro[], int n_mostros)
 {
-    for(int i=0; i < n_mostros; i++)
+    int m = 0;
+    for(m = 0; m < n_mostros; m++)
     {
-        monstro[i].stillalive = false;
-        monstro[i].health = 20;
-        monstro[i].speed = 2;
-        monstro[i].boundx = 18;
-        monstro[i].boundy = 18;
+        monstro[m].stillalive = false;
+        monstro[m].health = 20;
+        monstro[m].speed = 5;
+        monstro[m].boundx = 18;
+        monstro[m].boundy = 18;
     }
 }
 
 void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem)
 {
-    for(int n=0; n < n_mostros; n++)
+    int m = 0;
+    for(m = 0; m < n_mostros; m++)
     {
-        if(monstro[n].stillalive)
+        if(monstro[m].stillalive)
         {
-            al_draw_bitmap(imagem, monstro[n].xlocation, monstro[n].ylocation, 0);
+            al_draw_bitmap(imagem, monstro[m].xlocation, monstro[m].ylocation, 0);
         }
     }
 }
 
 void start_horda(Monstro monstro[], int n_monstros)
 {
-    for(int n = 0; n < n_monstros; n++)
-    {
-        if(!monstro[n].stillalive)
-        {
-            monstro[n].stillalive = true;
-
-            for(int x=0; x<A; x++)
-            {
-                for(int y=0; y<B; y++)
-                {
-                    if (mapa[y][x] == 6)
-                    {
-                        monstro[n].xlocation = 0 - ((n - 1) *30);
-                        monstro[n].ylocation = y*a_celula;
+    int m = 0;
+    int i = 0;
+    int j = 0;
+    for (m = 0; m < n_monstros; m++){
+        if(!monstro[m].stillalive){
+            monstro[m].stillalive = true;
+            for (i = 0; i < A; i++) {
+                for(j = 0; j < B; j++ ){
+                    switch (mapa[i][j]) {
+                        case 6:
+                        monstro[m].xlocation = 0 - ((m - 1) * 30);
+                        monstro[m].ylocation = i * a_celula;
                         break;
                     }
                 }
             }
-            monstro[n].health = 5;
         }
     }
 }
 
-void update_horda(Monstro monstro[], int n_monstros)
+void update_horda(Monstro monstro[], int mapa[A][B], int n_monstros)
 {
-    for(int n = 0; n < n_monstros; n++)
+    int m = 0;
+    int i = 0;
+    int j = 0;
+    for(m = 0; m < n_monstros; m++)
     {
         float movimentox = 0;
         float movimentoy = 0;
         float xmo, ymo;
-        int xn = ceil(monstro[n].xlocation /(l_celula + 1));
-        int yn = ceil(monstro[n].ylocation/(a_celula + 1));
-        int xm = monstro[n].xlocation/l_celula;
-        int ym = monstro[n].ylocation/a_celula;
-        for(int x = 0; x < A ; x++)
-        {
-            for(int y = 0; y < B ; y++)
+        int xn = ceil(monstro[m].xlocation /(l_celula + 1));
+        int yn = ceil(monstro[m].ylocation/(a_celula + 1));
+        int xm = monstro[m].xlocation/l_celula;
+        int ym = monstro[m].ylocation/a_celula;
+            if(mapa[ym][xm] == 6)
             {
-                //printf("\n\n\nxm = %i   e   ym = %i\n\n\n",xm,ym);
-                if(mapa[ym][xm] == 6)
-                {
-                    monstro[n].xlocation+=0.1;
-                    xmo=0.1;
-                    ymo=0;
-                    break;
-                }
-                if(mapa[ym][xm] == 0)
-                {
-                    monstro[n].xlocation+=xmo;
-                    monstro[n].ylocation+=ymo;
-                    break;
-                }
-                if(mapa[ym][xm] == 1)
-                {
-                    monstro[n].ylocation+=0.1;
-                    ymo = 0.1;
-                    xmo = 0;
-                    break;
-                }
-                if(mapa[ym][xm] == 2)
-                {
-                    monstro[n].ylocation-=0.1;
-                    ymo = (-0.1);
-                    xmo = 0;
-                    break;
-                }
-                if(mapa[ym][xm] == 3)
-                {
-                    monstro[n].xlocation-=0.1;
-                    xmo= (-0.1);
-                    ymo = 0;
-                    break;
-                }
-                if(mapa[ym][xm] == 4)
-                {
-                    monstro[n].xlocation+=0.1;
-                    xmo=0.1;
-                    ymo = 0;
-                    break;
-                }
-                if(monstro[n].xlocation > LARGURA_TELA)
-                {
-                    monstro[n].stillalive = false;
-                    break;
-                }
+                monstro[m].xlocation += monstro[m].speed;
+                xmo = monstro[m].speed;
+                ymo = 0;
+            }
+            if(mapa[ym][xm] == 0)
+            {
+                monstro[m].xlocation += xmo;
+                monstro[m].ylocation += ymo;
+            }
+            if(mapa[ym][xm] == 1)
+            {
+                monstro[m].ylocation += monstro[m].speed;
+                ymo = monstro[m].speed;
+                xmo = 0;
+            }
+            if(mapa[ym][xm] == 2)
+            {
+                monstro[m].ylocation -= monstro[m].speed;
+                ymo = (-monstro[m].speed);
+                xmo = 0;
+            }
+            if(mapa[ym][xm] == 3)
+            {
+                monstro[m].xlocation -= monstro[m].speed;
+                xmo= (-monstro[m].speed);
+                ymo = 0;
+            }
+            if(mapa[ym][xm] == 4)
+            {
+                monstro[m].xlocation += monstro[m].speed;
+                xmo=monstro[m].speed;
+                ymo = 0;
+            }
+            if(monstro[m].xlocation >= LARGURA_TELA)
+            {
+                monstro[m].stillalive = false;
             }
         }
-    }
 }
 
 void draw_tower(int r, int l, Torre torre[], int t)
@@ -482,38 +471,32 @@ void draw_tower(int r, int l, Torre torre[], int t)
     torre[t].live = true;
 }
 
-void initTorre(Torre torre[], Tiro tiro[], int t)
-{
+
+void initTorre(Torre torre[], Tiro tiro[], int t){
     torre[t].ID;
     torre[t].xlocation;
     torre[t].ylocation;
-    torre[t].fire_power = 10;
-    torre[t].fire_rate = 2;
-    torre[t].range = 20;
+	torre[t].fire_power = 10;
+	torre[t].fire_rate = 2;
+	torre[t].range = 20;
     torre[t].live = false;
     torre[t].in_mouse = false;
-    for(int t = 0; t < 10; t++)
-    {
+    for(int t = 0; t < 10; t++){
         tiro[t].live = false;
-        tiro[t].speed = 2;
+        tiro[t].speed = 15;
     }
 }
 
-void drawTiro(Tiro tiro[], int t)
-{
-    for(int t = 0 ; t < 10; t++)
-    {
+void drawTiro(Tiro tiro[], int t){
+    for(int t = 0 ; t < 10; t++){
         if(tiro[t].live)
             al_draw_filled_circle(tiro[t].xlocation, tiro[t].ylocation, 15, al_map_rgb(255, 255, 255));
     }
 }
 
-void FireTiro(Tiro tiro[], Torre torre[], int t, Monstro monstro[])
-{
-    for(int t = 0 ; t < 10; t++)
-    {
-        if(torre[t].live && !torre[t].in_mouse && !tiro[t].live)
-        {
+void FireTiro(Tiro tiro[], Torre torre[], Monstro monstro[], int t){
+    for(int t = 0 ; t < 10; t++){
+        if(torre[t].live && !torre[t].in_mouse && !tiro[t].live){
             tiro[t].xlocation = torre[t].xlocation;
             tiro[t].ylocation = torre[t].ylocation;
             tiro[t].fire_power = torre[t].fire_power;
@@ -523,38 +506,47 @@ void FireTiro(Tiro tiro[], Torre torre[], int t, Monstro monstro[])
     }
 }
 
-void UpdateTiro(Tiro tiro[], int t, Monstro monstro[])
-{
-    for(int t = 0 ; t < 10 ; t++)
-    {
-        for(int i = 0; i < 10; i++)
-        {
-            if(monstro[i].stillalive)
+void UpdateTiro(Tiro tiro[], Monstro monstro[], int t){
+    for(int t = 0 ; t < 10 ; t++){
+        if(tiro[t].live){
+            if(tiro[t].xlocation > monstro[t].xlocation)
             {
-                if(tiro[t].live)
-                {
-                    if(tiro[t].xlocation > monstro[i].xlocation)
-                    {
-                        tiro[t].xlocation-=tiro[t].speed;
-                    }
-                    if(tiro[t].xlocation < monstro[i].xlocation)
-                    {
-                        tiro[t].xlocation+=tiro[t].speed;
-                    }
-                    if(tiro[t].ylocation > monstro[i].ylocation)
-                    {
-                        tiro[t].ylocation-=tiro[t].speed;
-                    }
-                    if(tiro[t].ylocation < monstro[i].ylocation)
-                    {
-                        tiro[t].ylocation+=tiro[t].speed;
-                    }
+                tiro[t].xlocation -= tiro[t].speed;
+            }
+            if(tiro[t].xlocation < monstro[t].xlocation)
+            {
+                tiro[t].xlocation += tiro[t].speed;
+            }
+            if(tiro[t].ylocation > monstro[t].ylocation)
+            {
+                tiro[t].ylocation -= tiro[t].speed;
+            }
+            if(tiro[t].ylocation < monstro[t].ylocation)
+            {
+                tiro[t].ylocation += tiro[t].speed;
+            }
+            if(!monstro[t].stillalive){
+                tiro[t].live = false;
+            }
+        }
+    }
+}
 
+void colisao_horda(Tiro tiro[], Monstro monstro[], int n_monstros){
+    for(int i = 0; i < 10; i++){
+        if(tiro[i].live){
+            for (int j = 0; j < n_monstros; j++){
+                if(monstro[j].stillalive){
+                    if(tiro[i].xlocation > (monstro[j].xlocation - monstro[j].boundx) &&
+						tiro[i].xlocation < (monstro[j].xlocation + monstro[j].boundx) &&
+						tiro[i].ylocation > (monstro[j].ylocation - monstro[j].boundy) &&
+						tiro[i].ylocation < (monstro[j].ylocation + monstro[j].boundy))
+					{
+						tiro[i].live = false;
+						monstro[j].stillalive = false;
+					}
                 }
             }
         }
     }
-    if (tiro[t].xlocation > LARGURA_TELA)
-        tiro[t].live = false;
 }
-
