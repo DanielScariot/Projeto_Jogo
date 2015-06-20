@@ -13,26 +13,6 @@ struct Sistema
 	int score;
 };
 
-struct Tiro{
-	int xlocation;
-	int ylocation;
-	int fire_power;
-	float speed;
-	bool live;
-};
-
-struct Torre{
-	int ID;
-	int xlocation;
-	int ylocation;
-	int fire_power;
-	int fire_rate;
-	int range;
-	int live;
-	bool in_mouse;
-	struct Tiro tiro;
-};
-
 struct Monstro{
     int ID;
     int health;         //VIDA DO MONSTRO
@@ -43,6 +23,29 @@ struct Monstro{
     int boundx;
     int boundy;
 };
+
+struct Tiro{
+	int xlocation;
+	int ylocation;
+	int fire_power;
+	float speed;
+	bool live;
+	struct Monstro monstro;
+};
+
+struct Torre{
+	int ID;
+	int xlocation;
+	int ylocation;
+	int fire_power;
+	bool fire_rate;
+	int range;
+	int live;
+	bool in_mouse;
+	struct Tiro tiro;
+};
+
+
 
 struct Coord{
 	int numero;
