@@ -8,10 +8,16 @@ Numero 1 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir
 Numero 2 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para cima;
 Numero 3 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para esquerda;
 Numero 4 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para direita;
+
 Numero 5 representa a parede que ir� beirar o caminho dos inimigos, nao ser� possivel criar torres nestes locais;
 Numero 6 representa o local onde os monstros ser�o criados (o local de spawn);
-Numero 7 representa o local onde torres poder�o ser constru�das;
-Numero 8 representa que existe uma torre naquele local;
+
+Numero 9 indica o local de compra da torre do tipo 1
+Numero 10 indica que há uma torre do tipo 1 construída -- Dinamico
+
+Numero 90 representa o sistema
+
+
 */
 int mapa[A][B] = {
    //                                                    A A A A A A
@@ -31,7 +37,7 @@ int mapa[A][B] = {
     {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //11
     {0,0,0,0,0,0,0,0,0,0,5,1,3,3,3,3,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //12
     {0,0,0,0,0,0,0,0,0,0,5,1,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //13
-    {0,0,0,0,0,0,0,0,0,0,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4}, //14
+    {0,0,0,0,0,0,0,0,0,0,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,90}, //14
     {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //15
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //16
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //17

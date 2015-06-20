@@ -1,7 +1,7 @@
 //Object IDs
 enum IDS{PLAYER, BULLET, ENEMY, TOWER};
 
-//Our Player
+//Parametros do sistema
 struct Sistema
 {
 	int ID;
@@ -13,17 +13,19 @@ struct Sistema
 	int score;
 };
 
+//Monstros
 struct Monstro{
     int ID;
-    int health;         //VIDA DO MONSTRO
-    int speed;          //VELOCIDADE DO MONSTRO
-    float xlocation;      //LOCALIZA��O X DO MONSTRO
-    float ylocation;      //LOCALIZA��O Y DO MONSTRO
-    bool stillalive;    //TRUE = VIVO    FALSE = MORTO
+    int health;         	//VIDA DO MONSTRO
+    int speed;          	//VELOCIDADE DO MONSTRO
+    float xlocation;      	//LOCALIZA��O X DO MONSTRO
+    float ylocation;      	//LOCALIZA��O Y DO MONSTRO
+    bool stillalive;    	//TRUE = VIVO    FALSE = MORTO
     int boundx;
     int boundy;
 };
 
+//Tiros das torres; utiliza a struct Monstro para alvo
 struct Tiro{
 	int xlocation;
 	int ylocation;
@@ -33,18 +35,18 @@ struct Tiro{
 	struct Monstro monstro;
 };
 
+//Torres; utiliza a struct dos tiros
 struct Torre{
 	int ID;
 	int xlocation;
 	int ylocation;
 	int fire_power;
-	bool fire_rate;
+	float fire_rate;
 	int range;
 	int live;
 	bool in_mouse;
 	struct Tiro tiro;
 };
-
 
 
 struct Coord{
