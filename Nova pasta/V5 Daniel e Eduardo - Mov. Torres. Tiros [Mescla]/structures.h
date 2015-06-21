@@ -10,7 +10,7 @@ struct Sistema
 	int lives;		//Vidas restantes do sistema
 	int boundx;
 	int boundy;
-	int money;		//Poder de compra do sistema
+	float money;		//Poder de compra do sistema
 	int score;		//Score
 };
 
@@ -44,6 +44,7 @@ struct Torre{
 	int fire_power;		//Poder de fogo da torre
 	float fire_rate;	//Período de disparo
 	int range;			//Alcance da torre
+	int price;
 	int live;
 	bool in_mouse;		//Se ela está no mouse
 	struct Tiro tiro;
@@ -52,4 +53,5 @@ struct Torre{
 
 struct Coord{
 	int numero[2];    	//Coordenada da matriz
+	int torre;
 };

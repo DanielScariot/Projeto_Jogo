@@ -2,8 +2,10 @@
 /*
 Explicaçaoo dos numeros na matriz:
 
+Background:
+Numero 0: Local de contruçao das torres
 
-###### Caminho dos monstros:
+Caminho dos monstros:
 Numero 1 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para baixo;
 Numero 2 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para cima;
 Numero 3 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para esquerda;
@@ -11,6 +13,7 @@ Numero 4 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir
 Numero 5 representa a parede que ir� beirar o caminho dos inimigos;
 Numero 6 representa o local onde os monstros ser�o criados (o local de spawn);
 
+Compra e posicionamento das torres:
 Numero 9 indica o local de compra da torre do tipo 1
 Numero 10 indica que há uma torre do tipo 1 construída -- Dinamico
 
