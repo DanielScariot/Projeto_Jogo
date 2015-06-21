@@ -7,10 +7,11 @@ struct Sistema
 	int ID;
 	int x;
 	int y;
-	int lives;
+	int lives;		//Vidas restantes do sistema
 	int boundx;
 	int boundy;
-	int score;
+	int money;		//Poder de compra do sistema
+	int score;		//Score
 };
 
 //Monstros
@@ -29,8 +30,8 @@ struct Monstro{
 struct Tiro{
 	int xlocation;
 	int ylocation;
-	int fire_power;
-	float speed;
+	int fire_power;		//Poder de fogo do tiro - Dano causado no inimigo
+	float speed;		//Velocidade de locomoçao do tiro [estático]
 	bool live;
 	struct Monstro monstro;
 };
@@ -40,16 +41,15 @@ struct Torre{
 	int ID;
 	int xlocation;
 	int ylocation;
-	int fire_power;
-	float fire_rate;
-	int range;
+	int fire_power;		//Poder de fogo da torre
+	float fire_rate;	//Período de disparo
+	int range;			//Alcance da torre
 	int live;
-	bool in_mouse;
+	bool in_mouse;		//Se ela está no mouse
 	struct Tiro tiro;
 };
 
 
 struct Coord{
-	int numero;
-	char letra[2];
+	int numero[2];    	//Coordenada da matriz
 };

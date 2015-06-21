@@ -1,15 +1,14 @@
 
-char letras[27] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
-
 /*
-Explica��o dos numeros na matriz:
-Numero 0 representa um caminho onde os monstros nao mudar�o sua rota, continuarao com o movimento anterior;
+Explicaçaoo dos numeros na matriz:
+
+
+###### Caminho dos monstros:
 Numero 1 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para baixo;
 Numero 2 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para cima;
 Numero 3 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para esquerda;
 Numero 4 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para direita;
-
-Numero 5 representa a parede que ir� beirar o caminho dos inimigos, nao ser� possivel criar torres nestes locais;
+Numero 5 representa a parede que ir� beirar o caminho dos inimigos;
 Numero 6 representa o local onde os monstros ser�o criados (o local de spawn);
 
 Numero 9 indica o local de compra da torre do tipo 1
