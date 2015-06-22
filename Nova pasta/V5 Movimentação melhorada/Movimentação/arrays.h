@@ -1,25 +1,17 @@
 
+char letras[27] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+
 /*
-Explicaçaoo dos numeros na matriz:
-
-Background:
-Numero 0: Local de contruçao das torres
-
-Caminho dos monstros:
+Explica��o dos numeros na matriz:
+Numero 0 representa um caminho onde os monstros nao mudar�o sua rota, continuarao com o movimento anterior;
 Numero 1 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para baixo;
 Numero 2 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para cima;
 Numero 3 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para esquerda;
 Numero 4 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir para direita;
-Numero 5 representa a parede que ir� beirar o caminho dos inimigos;
+Numero 5 representa a parede que ir� beirar o caminho dos inimigos, nao ser� possivel criar torres nestes locais;
 Numero 6 representa o local onde os monstros ser�o criados (o local de spawn);
-
-Compra e posicionamento das torres:
-Numero 9 indica o local de compra da torre do tipo 1
-Numero 10 indica que há uma torre do tipo 1 construída -- Dinamico
-
-Numero 90 representa o sistema
-
-
+Numero 7 representa o local onde torres poder�o ser constru�das;
+Numero 8 representa que existe uma torre naquele local;
 */
 int mapa[A][B] = {
    //                                                    A A A A A A
@@ -39,7 +31,7 @@ int mapa[A][B] = {
     {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //11
     {0,0,0,0,0,0,0,0,0,0,5,1,3,3,3,3,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //12
     {0,0,0,0,0,0,0,0,0,0,5,1,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //13
-    {0,0,0,0,0,0,0,0,0,0,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,90}, //14
+    {0,0,0,0,0,0,0,0,0,0,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4}, //14
     {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //15
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //16
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //17

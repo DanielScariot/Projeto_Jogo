@@ -11,25 +11,28 @@
 
 int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Fun�ao falha na inicializa�ao
 void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
-void init_system(Sistema &sistema); //Carrega informa�oes das torres
-void draw_tower(int r, int l, Torre torre[], int t);
-void coor_matrix(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
-void a_coord(Coord coordenada[], ALLEGRO_FONT *fonte);
-int conversao_coordenadas(Coord coordenada[], char a, char b);
+void init_system(Sistema &sistema); //Carrega informaçoes das torres
+void draw_background(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
+void a_coord(Coord coordenada[]);
 
-bool GameOver = false;
 //Funçoes dos montros
-void init_horda(Monstro monstro[], int n_mostros);
-void start_horda(Monstro monstro[], int n_monstros);
-void update_horda(Monstro monstro[], int mapa[A][B], int n_monstros);
-void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem);
-void colisao_horda(Tiro tiro[], Monstro monstro[], int n_monstros);
+void init_horda(Monstro monstro[], int n_monstros);
+void start_horda(Monstro monstro[], int n_monstros, int n_hordas);
+void update_horda(Monstro monstro[], Sistema &sistema, int mapa[A][B], int n_monstros);
+void draw_horda(Monstro monstro[], int n_monstros, ALLEGRO_BITMAP *imagem);
+void colisao_horda(Torre torre[], Monstro monstro[], int t, int n_monstros, Sistema &sistema);
 
-void initTorre(Torre torre[], Tiro tiro[], int t);
+//Funçoes das torres
+void setup_tower(Sistema &sistema, Torre torre[], int t, int r, int l);
+void draw_mouse_tower(int r, int l, Torre torre[], int t);
+void draw_towers(int mapa[A][B], Coord coordenada[], Sistema &sistema, bool click, ALLEGRO_FONT *fonte);
+void show_tower_information(Torre torre[], int t, int r, int l, ALLEGRO_FONT *fonte);
+void buy_tower(Torre torre[], ALLEGRO_FONT *fonte);
 
-void drawTiro(Tiro tiro[], int t);
-void FireTiro(Tiro tiro[], Torre torre[], Monstro monstro[], int t);
-void UpdateTiro(Tiro tiro[], Monstro monstro[], int t);
+//Funçoes dos tiros
+void draw_tiro(Torre torre[], int t);
+void fire_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
+void update_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
 
 
 int main(int argc, char const *argv[])
@@ -37,24 +40,28 @@ int main(int argc, char const *argv[])
     int i = 0;
     int t = 1;
 
-    int n_mostros = 10;
+    int n_monstros = 10; //Numero de monstros de cada horda
+    int n_hordas = 0;    //Numero de hordas chamadas
     bool click = false;
-    bool nova_horda = true;
-    bool render = false;
-    bool torre_mouse = false;
+    bool nova_horda = true;    //Chama nova horda
+    bool render = false;       //Renderizaçao
+    bool torre_mouse = false;  //Se a torre está no mouse
+    bool info_torre = false;   //Chama a funçao de informaçoes da torre
+    bool compra_torre = false;
+    int tower_posx = 0;        //Posiçao x de determinada torre
+    int tower_posy = 0;        //Posiçao y de determinada torre
+    int torre_n;
 
-    char a;
-    char b;
-    int r;
-    int l;
+    int r; //Variável para colunas
+    int l; //Variável para linhas
 
+    //Iniciaçao das estruturas
     Sistema sistema;
-    Torre torre[10];
-    Tiro tiro[10];
-    Monstro monstro[n_mostros];
+    Torre torre[100];
+    Monstro monstro[n_monstros];
     Coord coordenada[A*B];
 
-    //Declara�ao vair�veis allegro
+    //Declaracao vairaveis allegro
     ALLEGRO_DISPLAY *janela = NULL;	            //Vari�vel para a janela
     ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;   //  ''     para eventos
     ALLEGRO_BITMAP *imagem = NULL;              //  ''     para imagem
@@ -69,20 +76,23 @@ int main(int argc, char const *argv[])
     al_init_font_addon();
     al_init_ttf_addon();
 
-    a_coord(coordenada, fonte);
-    init_horda(monstro, n_mostros);
+    //Setup inicial da matriz, monstros e sistema
+    a_coord(coordenada);
+    init_horda(monstro, n_monstros);
     init_system(sistema);
-    initTorre(torre, tiro, t-1);
-
-
+    //******************* -> Temporário!
+    torre[0].price = 40;
+    torre[0].range = 80;
+    torre[0].fire_rate = 0.3;
+    torre[0].fire_power = 25;
+    //*******************
 
     //Atribui atributos às variáveis allegro
-
     janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
     fila_eventos = al_create_event_queue();
     imagem = al_load_bitmap("virus.png");
     timer = al_create_timer(1.0 / fps);
-    fonte = al_load_font("arial.ttf", 12, 0);    //Fonte DejaVu
+    fonte = al_load_font("arial.ttf", 12, 0);
 
     //Inicializa o mouse e tempo
     al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
@@ -108,14 +118,23 @@ int main(int argc, char const *argv[])
 
         if(evento.type == ALLEGRO_EVENT_TIMER)  //Evento de renderiza�ao
         {
+            for(int j =0; j<t+1; j++){ //Loop para o disparo das torres
+                if(torre[j].live){
+                    if(i >= fps*(torre[j].fire_rate)){
+                        fire_tiro(torre, monstro, t, n_monstros); //Dispara tiros
+                        i = 0;
+                    }
+                }
+            }
             i++;
+
+            update_horda(monstro, sistema, mapa, n_monstros);
+            update_tiro(torre, monstro, t, n_monstros);
+            colisao_horda(torre, monstro, t, n_monstros, sistema);
+
             render = true;
-
-            FireTiro(tiro, torre, monstro, t-1);
-            UpdateTiro(tiro, monstro, t-1);
-            update_horda(monstro, mapa, n_mostros);
-            colisao_horda(tiro, monstro, n_mostros);
-
+            if(sistema.lives <= 0)
+                GameOver = true;
         }
 
         if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -125,64 +144,96 @@ int main(int argc, char const *argv[])
 
         else if(evento.type == ALLEGRO_EVENT_MOUSE_AXES)
         {
-            pos_x = evento.mouse.x;
-            pos_y = evento.mouse.y;
+            pos_x = evento.mouse.x; //Armazena a posiçao x do mouse
+            pos_y = evento.mouse.y; //Armazena a posiçao y do mouse
 
-            a =  coordenada[(pos_x/l_celula)].letra[0];
-            b =  coordenada[(pos_x/l_celula)].letra[1];
-            l =  coordenada[(pos_y/a_celula)].numero;
-
-            r = conversao_coordenadas(coordenada, a, b);
+            r = coordenada[(pos_x/l_celula)].numero[0]; // Atribui uma celula de coluna
+            l = coordenada[(pos_y/a_celula)].numero[1]; // Atribui uma celula de linha
         }
 
         else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
         {
-            if (mapa[pos_y/a_celula][pos_x/l_celula] == 9)
-            {
-                torre_mouse = true;
-                torre[t].in_mouse = true;
+
+            if (mapa[l][r] == 9 && evento.mouse.button & 1){
+                compra_torre = true;
+                if(sistema.money >= torre[t-1].price && evento.mouse.button & 1){
+                    torre_mouse = true;
+                    torre[t].live = false;
+                    compra_torre = true;
+                    click = !click;
+                }
             }
-            if(torre_mouse && !click)
+
+            if(torre_mouse && click && evento.mouse.button & 1) //Posicionamento da torre
             {
-                if (mapa[pos_y/a_celula][pos_x/l_celula] != 9)
+                if (mapa[l][r] == 0)
                 {
-                    mapa[pos_y/a_celula][pos_x/l_celula] = 10;
+                    setup_tower(sistema, torre, t, r, l);
+                    sistema.money -= torre[t].price;
                     torre_mouse = false;
-                    torre[t].in_mouse = false;
+                    compra_torre = false;
+                    mapa[l][r] = 10;
+                    coordenada[l*r].torre = t;
+                    click = !click;
                     t++;
                 }
             }
-            click = !click;
+            if(torre_mouse && evento.mouse.button & 2){
+                torre_mouse = false;
+                compra_torre = false;
+                click = !click;
+            }
+
+            if (mapa[l][r] == 10){ //Exibiçao das infomaoes de determinada torre
+                tower_posx = r;
+                tower_posy = l;
+                torre_n = coordenada[l*r].torre;
+                info_torre = true;
+            }
+            if(mapa[l][r] != 10){
+                info_torre = false; //Fecha a exibiçao
+            }
         }
 
         else if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
         {
             switch(evento.keyboard.keycode)
             {
-            case ALLEGRO_KEY_SPACE:
-                start_horda(monstro, n_mostros);
+            case ALLEGRO_KEY_SPACE: //Inicializa uma nova horda
+                start_horda(monstro, n_monstros, n_hordas);
+                n_hordas++;
                 break;
             }
         }
         else if(render && al_is_event_queue_empty(fila_eventos))
         {
             render = false;
+            al_clear_to_color(al_map_rgb(61, 10, 10));
 
-            coor_matrix(mapa, coordenada, fonte);
+            draw_background(mapa, coordenada, fonte); //Desenha o plano de fundo
+            draw_towers(mapa, coordenada, sistema, click, fonte); //Desenha as torres
 
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/4, 50, ALLEGRO_ALIGN_CENTRE, "Taxa de Frames: %i", i);
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "   x:%i y:%i", pos_x, pos_y);
+            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 900, 15, ALLEGRO_ALIGN_LEFT, "Vidas do sistema %i", sistema.lives);
+            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 900, 35, ALLEGRO_ALIGN_LEFT, "Bitcoins %.2f", sistema.money);
+            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 100, 15, ALLEGRO_ALIGN_LEFT, "Monstros mortos: %i  Wave: %i", sistema.score, n_hordas);
 
-            draw_horda(monstro, n_mostros, imagem);
+            al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "x:%i y:%i", r, l);
+
+            draw_horda(monstro, n_monstros, imagem); //Desenha os montros
 
             if(torre_mouse)
             {
-                draw_tower(r, l, torre, t);
+                draw_mouse_tower(r, l, torre, t-1); //Desenha a torre somente enquanto ela estiver no mouse
             }
-            drawTiro(tiro, t-1);
+            if(info_torre){
+                show_tower_information(torre, torre_n, tower_posx, tower_posy, fonte); //info torres
+            }
+            if(compra_torre){
+                buy_tower(torre, fonte);
+            }
+            draw_tiro(torre, t-1); //Desenha os tiros
 
             al_flip_display();
-            al_clear_to_color(al_map_rgb(255,255,255));
         }
     }
 
@@ -194,12 +245,11 @@ int main(int argc, char const *argv[])
 
 void init_system(Sistema &sistema)
 {
-    sistema.x = 400;
-    sistema.y = 400;
     sistema.lives = 10;
-    sistema.boundx = 405;
-    sistema.boundy = 390;
     sistema.score = 0;
+    sistema.money = 100;
+    sistema.boundx = l_celula;
+    sistema.boundy = a_celula;
 }
 
 int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer)
@@ -264,7 +314,7 @@ void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
     al_destroy_timer(timer);
 }
 
-void coor_matrix(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte)
+void draw_background(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte) //Setup e desenho o ultimo plano da matriz
 {
     int i = 0;
     int j = 0;
@@ -275,41 +325,30 @@ void coor_matrix(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte)
     {
         for(j=0; j<B; j++)
         {
-
             switch (mapa[i][j])
             {
             case 0:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 255));
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(20, 90, 185));
                 break;
             case 1:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 255));
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
                 break;
             case 2:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 255));
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
                 break;
             case 3:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 255));
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
                 break;
             case 4:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 255));
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
                 break;
             case 5:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 255, 0));
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 200, 0));
                 break;
             case 6:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(255, 255, 0));
-                break;
-            case 9:
-                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(0, 200, 0));
-                break;
-            case 10:
-                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(255, 0, 255));
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(200, 200, 0));
                 break;
             }
-            al_draw_line(0 + l_celula * j, 0, 0 + l_celula * j, ALTURA_TELA, al_map_rgb(255, 0, 90  ), 0); //Linhas verticais
-            al_draw_line( 0,  0 + a_celula * i, LARGURA_TELA, a_celula * i, al_map_rgb(0, 255, 0), 0);       //Linhas horizontais
-
-            // al_draw_textf(fonte, al_map_rgb(0, 0, 0), l_celula * j, a_celula * i, ALLEGRO_ALIGN_LEFT, "%c%c%i", coordenada[j].letra[0], coordenada[j].letra[1], coordenada[i].numero + 1);
             m_x += l_celula;
         }
         m_x = 0;
@@ -317,66 +356,70 @@ void coor_matrix(int mapa[A][B], Coord coordenada[], ALLEGRO_FONT *fonte)
     }
 }
 
-void a_coord(Coord coordenada[], ALLEGRO_FONT *fonte)
+void draw_towers(int mapa[A][B], Coord coordenada[], Sistema &sistema, bool click, ALLEGRO_FONT *fonte) //Desenha as torres; segundo plano
 {
-    int i, j, l = 0;
+    int i = 0;
+    int j = 0;
+    int m_x = 0;
+    int m_y = 0;
 
     for (i=0;  i<A; i++)
     {
         for(j=0; j<B; j++)
         {
-            coordenada[j].numero = j;
-            if(j<26)
+            switch (mapa[i][j])
             {
-                coordenada[j].letra[0] = letras[l];
-                coordenada[j].letra[1] = letras[26];
-                l++;
+            case 9:
+                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(204, 51, 0));
+                break;
+            case 10:
+                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(153, 0, 0));
+                break;
+            case 90:
+                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(0, 0, 0));
+                //Define as coordenadas do sistema de acordo com a posiçao 90 na matriz
+                sistema.x = m_x;
+                sistema.y = m_y;
+                break;
             }
-            else if (j==26)
-            {
-                l=0;
-                coordenada[j].letra[0] = letras[0];
-                coordenada[j].letra[1] = letras[l];
-            }
-            else
-            {
-                l++;
-                coordenada[j].letra[0] = letras[0];
-                coordenada[j].letra[1] = letras[l];
-            }
+            m_x += l_celula;
         }
-        l = 0;
+        m_x = 0;
+        m_y += a_celula;
     }
 }
 
-int conversao_coordenadas(Coord coordenada[], char a, char b)
+void a_coord(Coord coordenada[])  //Nomeia as células da matriz, é executada apenas uma vez
 {
-    int i;
-    for(i=0; i<B; i++)
+    int i, j;
+
+    for (i=0;  i<A; i++)
     {
-        if(coordenada[i].letra[0] == a && coordenada[i].letra[1] == b)
-            break;
+        for(j=0; j<B; j++)
+        {
+            coordenada[j].numero[0] = j;
+            coordenada[i].numero[1] = i;
+        }
     }
-    return i;
 }
 
-void init_horda(Monstro monstro[], int n_mostros)
+void init_horda(Monstro monstro[], int n_monstros)
 {
     int m = 0;
-    for(m = 0; m < n_mostros; m++)
+    for(m = 0; m < n_monstros; m++)
     {
         monstro[m].stillalive = false;
-        monstro[m].health = 20;
-        monstro[m].speed = 5;
-        monstro[m].boundx = 18;
-        monstro[m].boundy = 18;
+        monstro[m].health = 15;
+        monstro[m].speed = 3;
+        monstro[m].boundx = 35;
+        monstro[m].boundy = 35;
     }
 }
 
-void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem)
+void draw_horda(Monstro monstro[], int n_monstros, ALLEGRO_BITMAP *imagem)
 {
     int m = 0;
-    for(m = 0; m < n_mostros; m++)
+    for(m = 0; m < n_monstros; m++)
     {
         if(monstro[m].stillalive)
         {
@@ -384,8 +427,7 @@ void draw_horda(Monstro monstro[], int n_mostros, ALLEGRO_BITMAP *imagem)
         }
     }
 }
-
-void start_horda(Monstro monstro[], int n_monstros)
+void start_horda(Monstro monstro[], int n_monstros, int n_hordas)
 {
     int m = 0;
     int i = 0;
@@ -398,7 +440,8 @@ void start_horda(Monstro monstro[], int n_monstros)
                     switch (mapa[i][j]) {
                         case 6:
                         monstro[m].xlocation = 0 - ((m - 1) * 30);
-                        monstro[m].ylocation = i * a_celula;
+                        monstro[m].ylocation = i * a_celula + 5;
+                        monstro[m].health = 20 + (n_hordas*5 ) * 1.3;
                         break;
                     }
                 }
@@ -407,13 +450,15 @@ void start_horda(Monstro monstro[], int n_monstros)
     }
 }
 
-void update_horda(Monstro monstro[], int mapa[A][B], int n_monstros)
+void update_horda(Monstro monstro[], Sistema &sistema, int mapa[A][B], int n_monstros)
 {
     int m = 0;
     int i = 0;
     int j = 0;
-    for(m = 0; m < n_monstros; m++)
+    for(m = 0; m < 10; m++)
     {
+        if(monstro[m].stillalive){
+
         float movimentox = 0;
         float movimentoy = 0;
         float xmo, ymo;
@@ -456,97 +501,120 @@ void update_horda(Monstro monstro[], int mapa[A][B], int n_monstros)
                 xmo=monstro[m].speed;
                 ymo = 0;
             }
-            if(monstro[m].xlocation >= LARGURA_TELA)
+            if(monstro[m].health <= 0)
             {
+                monstro[m].stillalive = false;
+                sistema.score++;
+                sistema.money += 1.5;
+            }
+            if(monstro[m].xlocation > sistema.x){
+                sistema.lives--;
                 monstro[m].stillalive = false;
             }
         }
+    }
 }
 
-void draw_tower(int r, int l, Torre torre[], int t)
+void draw_mouse_tower(int r, int l, Torre torre[], int t)  //Desenha a torre enquanto ela estiver no mouse, nao atribui parametros
 {
     al_draw_filled_circle(r*l_celula + (l_celula/2), l*a_celula + (a_celula/2), l_celula/2, al_map_rgb(150, 50, 0));
+    al_draw_circle(r*l_celula + (l_celula/2), l*a_celula + (a_celula/2), torre[t].range, al_map_rgb(10, 110, 10), 0);
+}
+
+void show_tower_information(Torre torre[], int t, int r, int l, ALLEGRO_FONT *fonte){
+    al_draw_circle(torre[t].xlocation, torre[t].ylocation, torre[t].range, al_map_rgb(10, 110, 10), 0);
+    al_draw_textf(fonte, al_map_rgb(0, 0, 0), 50, 600, ALLEGRO_ALIGN_LEFT, "Tower fire power: %i", torre[t].fire_power);
+    al_draw_textf(fonte, al_map_rgb(0, 0, 0), 50, 620, ALLEGRO_ALIGN_LEFT, "Tower range: %i", torre[t].range);
+    al_draw_textf(fonte, al_map_rgb(0, 0, 0), 50, 640, ALLEGRO_ALIGN_LEFT, "Tower fire rate: %.2fs", torre[t].fire_rate);
+}
+
+void setup_tower(Sistema &sistema, Torre torre[], int t, int r, int l){ //Define os parametros da torre quando ela é criada
+    torre[t].price = 40;
     torre[t].xlocation = r*l_celula + (l_celula/2);
     torre[t].ylocation = l*a_celula + (a_celula/2);
+    torre[t].range = 80;                             //Alcance de até 80 pixel
+    torre[t].fire_rate = 0.3;                         //1 tiro a cada 0,3 segundos
+    torre[t].fire_power = 25;                         //25 de dano nos monstros
+    torre[t].tiro.speed = 7;                         //Velocidade do tiro
+    torre[t].tiro.live = false;
     torre[t].live = true;
 }
 
-
-void initTorre(Torre torre[], Tiro tiro[], int t){
-    torre[t].ID;
-    torre[t].xlocation;
-    torre[t].ylocation;
-	torre[t].fire_power = 10;
-	torre[t].fire_rate = 2;
-	torre[t].range = 20;
-    torre[t].live = false;
-    torre[t].in_mouse = false;
-    for(int t = 0; t < 10; t++){
-        tiro[t].live = false;
-        tiro[t].speed = 15;
-    }
+void buy_tower(Torre torre[], ALLEGRO_FONT *fonte){
+    al_draw_textf(fonte, al_map_rgb(0, 0, 0), 700, 630, ALLEGRO_ALIGN_LEFT, "Tower price: %i bitcoins", torre[0].price);
+    al_draw_textf(fonte, al_map_rgb(0, 0, 0), 700, 650, ALLEGRO_ALIGN_LEFT, "Tower fire power: %i", torre[0].fire_power);
+    al_draw_textf(fonte, al_map_rgb(0, 0, 0), 700, 670, ALLEGRO_ALIGN_LEFT, "Tower range: %i", torre[0].range);
+    al_draw_textf(fonte, al_map_rgb(0, 0, 0), 700, 690, ALLEGRO_ALIGN_LEFT, "Tower fire rate: %.2fs", torre[0].fire_rate);
 }
 
-void drawTiro(Tiro tiro[], int t){
-    for(int t = 0 ; t < 10; t++){
-        if(tiro[t].live)
-            al_draw_filled_circle(tiro[t].xlocation, tiro[t].ylocation, 15, al_map_rgb(255, 255, 255));
-    }
-}
-
-void FireTiro(Tiro tiro[], Torre torre[], Monstro monstro[], int t){
-    for(int t = 0 ; t < 10; t++){
-        if(torre[t].live && !torre[t].in_mouse && !tiro[t].live){
-            tiro[t].xlocation = torre[t].xlocation;
-            tiro[t].ylocation = torre[t].ylocation;
-            tiro[t].fire_power = torre[t].fire_power;
-            tiro[t].live = true;
-            break;
-        }
-    }
-}
-
-void UpdateTiro(Tiro tiro[], Monstro monstro[], int t){
-    for(int t = 0 ; t < 10 ; t++){
-        if(tiro[t].live){
-            if(tiro[t].xlocation > monstro[t].xlocation)
-            {
-                tiro[t].xlocation -= tiro[t].speed;
-            }
-            if(tiro[t].xlocation < monstro[t].xlocation)
-            {
-                tiro[t].xlocation += tiro[t].speed;
-            }
-            if(tiro[t].ylocation > monstro[t].ylocation)
-            {
-                tiro[t].ylocation -= tiro[t].speed;
-            }
-            if(tiro[t].ylocation < monstro[t].ylocation)
-            {
-                tiro[t].ylocation += tiro[t].speed;
-            }
-            if(!monstro[t].stillalive){
-                tiro[t].live = false;
-            }
-        }
-    }
-}
-
-void colisao_horda(Tiro tiro[], Monstro monstro[], int n_monstros){
-    for(int i = 0; i < 10; i++){
-        if(tiro[i].live){
-            for (int j = 0; j < n_monstros; j++){
-                if(monstro[j].stillalive){
-                    if(tiro[i].xlocation > (monstro[j].xlocation - monstro[j].boundx) &&
-						tiro[i].xlocation < (monstro[j].xlocation + monstro[j].boundx) &&
-						tiro[i].ylocation > (monstro[j].ylocation - monstro[j].boundy) &&
-						tiro[i].ylocation < (monstro[j].ylocation + monstro[j].boundy))
-					{
-						tiro[i].live = false;
-						monstro[j].stillalive = false;
-					}
+void fire_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros){ //Verifica os montros e atira casa algum esteja vivo
+ int m = 0;
+    for(m = 0; m < n_monstros; m++){
+        if(monstro[m].stillalive){
+            for(int i = 0; i < t+1; i++){
+                if(torre[i].live && !torre[i].tiro.live &&
+                    torre[i].xlocation - monstro[m].xlocation <= torre[i].range &&
+                    torre[i].xlocation - monstro[m].xlocation >= - torre[i].range &&
+                    torre[i].ylocation - monstro[m].ylocation <= torre[i].range &&
+                    torre[i].ylocation - monstro[m].ylocation >= - torre[i].range){
+                        torre[i].tiro.xlocation = torre[i].xlocation;
+                        torre[i].tiro.ylocation = torre[i].ylocation;
+                        torre[i].tiro.fire_power = torre[i].fire_power;
+                        torre[i].tiro.monstro = monstro[m];
+                        torre[i].tiro.live = true;
                 }
             }
         }
+    }
+}
+
+void update_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros){ //Atualiza a posiçao do tiro
+    for(int i = 0; i < t+1; i++){
+        if(!torre[i].tiro.monstro.stillalive)
+            torre[i].tiro.live = false;
+        if(torre[i].tiro.monstro.stillalive){
+            if(torre[i].tiro.xlocation > torre[i].tiro.monstro.xlocation)
+            {
+                torre[i].tiro.xlocation -= torre[i].tiro.speed;
+            }
+            if(torre[i].tiro.xlocation < torre[i].tiro.monstro.xlocation)
+            {
+                torre[i].tiro.xlocation += torre[i].tiro.speed;
+            }
+            if(torre[i].tiro.ylocation > torre[i].tiro.monstro.ylocation)
+            {
+                torre[i].tiro.ylocation -= torre[i].tiro.speed;
+            }
+            if(torre[i].tiro.ylocation < torre[i].tiro.monstro.ylocation)
+            {
+                torre[i].tiro.ylocation += torre[i].tiro.speed;
+            }
+        }
+    }
+}
+
+void colisao_horda(Torre torre[], Monstro monstro[], int t, int n_monstros, Sistema &sistema){ //Detecta se um tiro atingiu algum monstro
+    for(int m = 0; m < n_monstros; m++){
+        if(monstro[m].stillalive){
+            for(int i = 0; i < t+1; i++){
+                if(torre[i].tiro.live){ //Verificacao da localizaçao
+                    if( torre[i].tiro.xlocation > (torre[i].tiro.monstro.xlocation - torre[i].tiro.monstro.boundx) &&
+        			    torre[i].tiro.xlocation < (torre[i].tiro.monstro.xlocation + torre[i].tiro.monstro.boundx) &&
+        				torre[i].tiro.ylocation > (torre[i].tiro.monstro.ylocation - torre[i].tiro.monstro.boundy) &&
+        				torre[i].tiro.ylocation < (torre[i].tiro.monstro.ylocation + torre[i].tiro.monstro.boundy))
+        			{
+                        monstro[m].health -= torre[i].tiro.fire_power;
+        				torre[i].tiro.live = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void draw_tiro(Torre torre[], int t){ //Desenha o tiro durante a trajetória
+    for(int i = 0; i < t+1; i++){
+        if(torre[i].tiro.live)
+            al_draw_filled_circle(torre[i].tiro.xlocation, torre[i].tiro.ylocation, 5, al_map_rgb(255, 255, 255));
     }
 }
