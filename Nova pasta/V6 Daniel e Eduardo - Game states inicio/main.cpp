@@ -35,6 +35,7 @@ void fire_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
 void update_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
 
 
+
 int main(int argc, char const *argv[])
 {
     int i = 0;
@@ -51,6 +52,7 @@ int main(int argc, char const *argv[])
     int tower_posx = 0;        //Posiçao x de determinada torre
     int tower_posy = 0;        //Posiçao y de determinada torre
     int torre_n;
+    int gamestate = 0;
 
     int r; //Variável para colunas
     int l; //Variável para linhas
@@ -67,7 +69,8 @@ int main(int argc, char const *argv[])
     ALLEGRO_BITMAP *imagem = NULL;              //  ''     para imagem
     ALLEGRO_TIMER *timer = NULL;                //  ''     para o tempo (fps)
     ALLEGRO_FONT *fonte = NULL;                 //  ''     para fonte
-
+    ALLEGRO_FONT *FonteMenu = NULL;
+    ALLEGRO_FONT *fonte40 = NULL;
     //Inicializa o allegro, mouse e add-ons
     al_init();
     al_install_mouse();
@@ -93,6 +96,8 @@ int main(int argc, char const *argv[])
     imagem = al_load_bitmap("virus.png");
     timer = al_create_timer(1.0 / fps);
     fonte = al_load_font("arial.ttf", 12, 0);
+    FonteMenu = al_load_font("coure.fon", 18, 0);
+    fonte40 = al_load_font("arial.ttf", 40, 0);
 
     //Inicializa o mouse e tempo
     al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
@@ -116,134 +121,196 @@ int main(int argc, char const *argv[])
         ALLEGRO_EVENT evento;                         //Variavel para eventos
         al_wait_for_event(fila_eventos, &evento);
 
-        if(evento.type == ALLEGRO_EVENT_TIMER)  //Evento de renderiza�ao
+        if(gamestate == 0)
         {
-            for(int j =0; j<t+1; j++)  //Loop para o disparo das torres
+            if(evento.type == ALLEGRO_EVENT_TIMER)
             {
-                if(torre[j].live)
+                render = true;
+            }
+            if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
+            {
+                switch(evento.keyboard.keycode)
                 {
-                    if(i >= fps*(torre[j].fire_rate))
+                case ALLEGRO_KEY_ENTER:
+                    gamestate = 1;
+                    break;
+                case ALLEGRO_KEY_BACKSPACE:
+                    gamestate = 2;
+                    break;
+                }
+            }
+
+        }
+
+        if(gamestate == 1)
+        {
+
+            if(evento.type == ALLEGRO_EVENT_TIMER)  //Evento de renderiza�ao
+            {
+                for(int j =0; j<t+1; j++)  //Loop para o disparo das torres
+                {
+                    if(torre[j].live)
                     {
-                        fire_tiro(torre, monstro, t, n_monstros); //Dispara tiros
-                        i = 0;
+                        if(i >= fps*(torre[j].fire_rate))
+                        {
+                            fire_tiro(torre, monstro, t, n_monstros); //Dispara tiros
+                            i = 0;
+                        }
                     }
                 }
+                i++;
+
+                update_horda(monstro, sistema, mapa, n_monstros);
+                update_tiro(torre, monstro, t, n_monstros);
+                colisao_horda(torre, monstro, t, n_monstros, sistema);
+
+                render = true;
+                if(sistema.lives <= 0)
+                    gamestate = 2;
             }
-            i++;
 
-            update_horda(monstro, sistema, mapa, n_monstros);
-            update_tiro(torre, monstro, t, n_monstros);
-            colisao_horda(torre, monstro, t, n_monstros, sistema);
-
-            render = true;
-            if(sistema.lives <= 0)
+            if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+            {
                 GameOver = true;
-        }
-
-        if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-        {
-            GameOver = true;
-        }
-
-        else if(evento.type == ALLEGRO_EVENT_MOUSE_AXES)
-        {
-            pos_x = evento.mouse.x; //Armazena a posiçao x do mouse
-            pos_y = evento.mouse.y; //Armazena a posiçao y do mouse
-
-            r = coordenada[(pos_x/l_celula)].numero[0]; // Atribui uma celula de coluna
-            l = coordenada[(pos_y/a_celula)].numero[1]; // Atribui uma celula de linha
-        }
-
-        else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
-        {
-
-            if (mapa[l][r] == 9 && evento.mouse.button & 1)
-            {
-                compra_torre = true;
-                if(sistema.money >= torre[t-1].price && evento.mouse.button & 1)
-                {
-                    torre_mouse = true;
-                    torre[t].live = false;
-                    compra_torre = true;
-                    click = !click;
-                }
             }
 
-            if(torre_mouse && click && evento.mouse.button & 1) //Posicionamento da torre
+            else if(evento.type == ALLEGRO_EVENT_MOUSE_AXES)
             {
-                if (mapa[l][r] == 0)
+                pos_x = evento.mouse.x; //Armazena a posiçao x do mouse
+                pos_y = evento.mouse.y; //Armazena a posiçao y do mouse
+
+                r = coordenada[(pos_x/l_celula)].numero[0]; // Atribui uma celula de coluna
+                l = coordenada[(pos_y/a_celula)].numero[1]; // Atribui uma celula de linha
+            }
+
+            else if(evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+            {
+
+                if (mapa[l][r] == 9 && evento.mouse.button & 1)
                 {
-                    setup_tower(sistema, torre, t, r, l);
-                    sistema.money -= torre[t].price;
+                    compra_torre = true;
+                    if(sistema.money >= torre[t-1].price && evento.mouse.button & 1)
+                    {
+                        torre_mouse = true;
+                        torre[t].live = false;
+                        compra_torre = true;
+                        click = !click;
+                    }
+                }
+
+                if(torre_mouse && click && evento.mouse.button & 1) //Posicionamento da torre
+                {
+                    if (mapa[l][r] == 0)
+                    {
+                        setup_tower(sistema, torre, t, r, l);
+                        sistema.money -= torre[t].price;
+                        torre_mouse = false;
+                        compra_torre = false;
+                        mapa[l][r] = 10;
+                        coordenada[l*r].torre = t;
+                        click = !click;
+                        t++;
+                    }
+                }
+                if(torre_mouse && evento.mouse.button & 2)
+                {
                     torre_mouse = false;
                     compra_torre = false;
-                    mapa[l][r] = 10;
-                    coordenada[l*r].torre = t;
                     click = !click;
-                    t++;
+                }
+
+                if (mapa[l][r] == 10)  //Exibiçao das infomaoes de determinada torre
+                {
+                    tower_posx = r;
+                    tower_posy = l;
+                    torre_n = coordenada[l*r].torre;
+                    info_torre = true;
+                }
+                if(mapa[l][r] != 10)
+                {
+                    info_torre = false; //Fecha a exibiçao
                 }
             }
-            if(torre_mouse && evento.mouse.button & 2)
-            {
-                torre_mouse = false;
-                compra_torre = false;
-                click = !click;
-            }
 
-            if (mapa[l][r] == 10)  //Exibiçao das infomaoes de determinada torre
+            else if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
             {
-                tower_posx = r;
-                tower_posy = l;
-                torre_n = coordenada[l*r].torre;
-                info_torre = true;
-            }
-            if(mapa[l][r] != 10)
-            {
-                info_torre = false; //Fecha a exibiçao
+                switch(evento.keyboard.keycode)
+                {
+                case ALLEGRO_KEY_SPACE: //Inicializa uma nova horda
+                    start_horda(monstro, n_monstros, n_hordas);
+                    n_hordas++;
+                    break;
+                }
             }
         }
-
-        else if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
+        if(gamestate == 2)
         {
-            switch(evento.keyboard.keycode)
+            if(evento.type == ALLEGRO_EVENT_TIMER)
             {
-            case ALLEGRO_KEY_SPACE: //Inicializa uma nova horda
-                start_horda(monstro, n_monstros, n_hordas);
-                n_hordas++;
-                break;
+                render = true;
             }
+            if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
+            {
+                switch(evento.keyboard.keycode)
+                {
+                case ALLEGRO_KEY_R:
+                    gamestate = 1;
+                    break;
+                case ALLEGRO_KEY_ESCAPE:
+                    GameOver = true;
+                    break;
+                }
+            }
+
         }
-        else if(render && al_is_event_queue_empty(fila_eventos))
+
+        if(render && al_is_event_queue_empty(fila_eventos))
         {
             render = false;
-            al_clear_to_color(al_map_rgb(61, 10, 10));
 
-            draw_background(mapa, coordenada, fonte); //Desenha o plano de fundo
-            draw_towers(mapa, coordenada, sistema, click, fonte); //Desenha as torres
-
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 900, 15, ALLEGRO_ALIGN_LEFT, "Vidas do sistema %i", sistema.lives);
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 900, 35, ALLEGRO_ALIGN_LEFT, "Bitcoins %.2f", sistema.money);
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 100, 15, ALLEGRO_ALIGN_LEFT, "Monstros mortos: %i  Wave: %i", sistema.score, n_hordas);
-
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "x:%i y:%i", r, l);
-
-            draw_horda(monstro, n_monstros, imagem); //Desenha os montros
-
-            if(torre_mouse)
+            if(gamestate == 0)
             {
-                draw_mouse_tower(r, l, torre, t-1); //Desenha a torre somente enquanto ela estiver no mouse
+                al_clear_to_color(al_map_rgb(255,255,255));
+                al_draw_textf(fonte, al_map_rgb(0, 0, 255), LARGURA_TELA/2, (ALTURA_TELA/2) - 20, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para Jogar");
+                al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/2, (ALTURA_TELA/2) + 20, ALLEGRO_ALIGN_CENTER, "Pressione BACKSPACE para Sair");
             }
-            if(info_torre)
+            if(gamestate == 1)
             {
-                show_tower_information(torre, torre_n, tower_posx, tower_posy, fonte); //info torres
-            }
-            if(compra_torre)
-            {
-                buy_tower(torre, fonte);
-            }
-            draw_tiro(torre, t-1); //Desenha os tiros
+                al_clear_to_color(al_map_rgb(61, 10, 10));
 
-            al_flip_display();
+                draw_background(mapa, coordenada, fonte); //Desenha o plano de fundo
+                draw_towers(mapa, coordenada, sistema, click, fonte); //Desenha as torres
+
+                al_draw_textf(fonte, al_map_rgb(0, 0, 0), 900, 15, ALLEGRO_ALIGN_LEFT, "Vidas do sistema %i", sistema.lives);
+                al_draw_textf(fonte, al_map_rgb(0, 0, 0), 900, 35, ALLEGRO_ALIGN_LEFT, "Bitcoins %.2f", sistema.money);
+                al_draw_textf(fonte, al_map_rgb(0, 0, 0), 100, 15, ALLEGRO_ALIGN_LEFT, "Monstros mortos: %i  Wave: %i", sistema.score, n_hordas);
+
+                al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "x:%i y:%i", r, l);
+
+                draw_horda(monstro, n_monstros, imagem); //Desenha os montros
+
+                if(torre_mouse)
+                {
+                    draw_mouse_tower(r, l, torre, t-1); //Desenha a torre somente enquanto ela estiver no mouse
+                }
+                if(info_torre)
+                {
+                    show_tower_information(torre, torre_n, tower_posx, tower_posy, fonte); //info torres
+                }
+                if(compra_torre)
+                {
+                    buy_tower(torre, fonte);
+                }
+                draw_tiro(torre, t-1); //Desenha os tiros
+            }
+            if(gamestate == 2)
+                {
+                    al_clear_to_color(al_map_rgb(255,255,255));
+                    al_draw_textf(fonte40, al_map_rgb(255, 0, 0), LARGURA_TELA/2, (ALTURA_TELA/2) - 100, ALLEGRO_ALIGN_CENTER, "Game Over");
+                    al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/2, (ALTURA_TELA/2) - 20, ALLEGRO_ALIGN_CENTER, "Pressione R para Jogar Novamente");
+                    al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/2, (ALTURA_TELA/2) + 20, ALLEGRO_ALIGN_CENTER, "Pressione ESC para Sair");
+                }
+                al_flip_display();
         }
     }
 
@@ -455,7 +522,7 @@ void start_horda(Monstro monstro[], int n_monstros, int n_hordas)
                     {
                     case 6:
                         monstro[m].xlocation = 0 - ((m - 1) * 30);
-                        monstro[m].ylocation = i * a_celula + 5;
+                        monstro[m].ylocation = i * a_celula + 1;
                         monstro[m].health = 20 + (n_hordas*5 ) * 1.3;
                         monstro[m].speed = 5 + n_hordas;
                         monstro[m].mov_x = 1;
@@ -486,111 +553,111 @@ void update_horda(Monstro monstro[], Sistema &sistema, int mapa[A][B], int n_mon
 
             if (monstro[m].mov_x == 1)                          //se o monstro estiver se locomovendo para a direita
             {
-                    switch (mapa[cy][ex])
-                    {
-                    case 0:                                     //monstro continua com a movimentação anterior
-                        monstro[m].mov_x = monstro[m].mov_x;
-                        monstro[m].mov_y = monstro[m].mov_y;
-                        break;
-                    case 1:                                     //monstro vai para baixo
-                        monstro[m].mov_x = 0;
-                        monstro[m].mov_y = 1;
-                        break;
-                    case 2:                                     //monstro vai para cima
-                        monstro[m].mov_x = 0;
-                        monstro[m].mov_y = -1;
-                        break;
-                    case 3:                                     //monstro vai para esquerda
-                        monstro[m].mov_x = -1;
-                        monstro[m].mov_y = 0;
-                        break;
-                    case 4:                                     //monstro vai para direita
-                        monstro[m].mov_x = 1;
-                        monstro[m].mov_y = 0;
-                        break;
-                    }
+                switch (mapa[cy][ex])
+                {
+                case 0:                                     //monstro continua com a movimentação anterior
+                    monstro[m].mov_x = monstro[m].mov_x;
+                    monstro[m].mov_y = monstro[m].mov_y;
+                    break;
+                case 1:                                     //monstro vai para baixo
+                    monstro[m].mov_x = 0;
+                    monstro[m].mov_y = 1;
+                    break;
+                case 2:                                     //monstro vai para cima
+                    monstro[m].mov_x = 0;
+                    monstro[m].mov_y = -1;
+                    break;
+                case 3:                                     //monstro vai para esquerda
+                    monstro[m].mov_x = -1;
+                    monstro[m].mov_y = 0;
+                    break;
+                case 4:                                     //monstro vai para direita
+                    monstro[m].mov_x = 1;
+                    monstro[m].mov_y = 0;
+                    break;
+                }
             }
 
             if (monstro[m].mov_x == -1)                         //se o monstro estiver se locomovendo para a esquerda
             {
-                    switch (mapa[cy][dx])
-                    {
-                    case 0:                                     //monstro continua com a movimentação anterior
-                        monstro[m].mov_x = monstro[m].mov_x;
-                        monstro[m].mov_y = monstro[m].mov_y;
-                        break;
-                    case 1:                                     //monstro vai para baixo
-                        monstro[m].mov_x = 0;
-                        monstro[m].mov_y = 1;
-                        break;
-                    case 2:                                     //monstro vai para cima
-                        monstro[m].mov_x = 0;
-                        monstro[m].mov_y = -1;
-                        break;
-                    case 3:                                     //monstro vai para esquerda
-                        monstro[m].mov_x = -1;
-                        monstro[m].mov_y = 0;
-                        break;
-                    case 4:                                     //monstro vai para direita
-                        monstro[m].mov_x = 1;
-                        monstro[m].mov_y = 0;
-                        break;
-                    }
+                switch (mapa[cy][dx])
+                {
+                case 0:                                     //monstro continua com a movimentação anterior
+                    monstro[m].mov_x = monstro[m].mov_x;
+                    monstro[m].mov_y = monstro[m].mov_y;
+                    break;
+                case 1:                                     //monstro vai para baixo
+                    monstro[m].mov_x = 0;
+                    monstro[m].mov_y = 1;
+                    break;
+                case 2:                                     //monstro vai para cima
+                    monstro[m].mov_x = 0;
+                    monstro[m].mov_y = -1;
+                    break;
+                case 3:                                     //monstro vai para esquerda
+                    monstro[m].mov_x = -1;
+                    monstro[m].mov_y = 0;
+                    break;
+                case 4:                                     //monstro vai para direita
+                    monstro[m].mov_x = 1;
+                    monstro[m].mov_y = 0;
+                    break;
+                }
             }
 
 
             if (monstro[m].mov_y == 1)                          //se o monstro estiver se locomovendo para a baixo
             {
-                    switch (mapa[ay][cx])
-                    {
-                    case 0:                                     //monstro continua com a movimentação anterior
-                        monstro[m].mov_x = monstro[m].mov_x;
-                        monstro[m].mov_y = monstro[m].mov_y;
-                        break;
-                    case 1:                                     //monstro vai para baixo
-                        monstro[m].mov_x = 0;
-                        monstro[m].mov_y = 1;
-                        break;
-                    case 2:                                     //monstro vai para cima
-                        monstro[m].mov_x = 0;
-                        monstro[m].mov_y = -1;
-                        break;
-                    case 3:                                     //monstro vai para esquerda
-                        monstro[m].mov_x = -1;
-                        monstro[m].mov_y = 0;
-                        break;
-                    case 4:                                     //monstro vai para direita
-                        monstro[m].mov_x = 1;
-                        monstro[m].mov_y = 0;
-                        break;
-                    }
+                switch (mapa[ay][cx])
+                {
+                case 0:                                     //monstro continua com a movimentação anterior
+                    monstro[m].mov_x = monstro[m].mov_x;
+                    monstro[m].mov_y = monstro[m].mov_y;
+                    break;
+                case 1:                                     //monstro vai para baixo
+                    monstro[m].mov_x = 0;
+                    monstro[m].mov_y = 1;
+                    break;
+                case 2:                                     //monstro vai para cima
+                    monstro[m].mov_x = 0;
+                    monstro[m].mov_y = -1;
+                    break;
+                case 3:                                     //monstro vai para esquerda
+                    monstro[m].mov_x = -1;
+                    monstro[m].mov_y = 0;
+                    break;
+                case 4:                                     //monstro vai para direita
+                    monstro[m].mov_x = 1;
+                    monstro[m].mov_y = 0;
+                    break;
+                }
             }
 
             if (monstro[m].mov_y == -1)     //se o monstro estiver se locomovendo para a cima
             {
-                    switch (mapa[by][cx])
-                    {
-                    case 0:                                     //monstro continua com a movimentação anterior
-                        monstro[m].mov_x = monstro[m].mov_x;
-                        monstro[m].mov_y = monstro[m].mov_y;
-                        break;
-                    case 1:                                     //monstro vai para baixo
-                        monstro[m].mov_x = 0;
-                        monstro[m].mov_y = 1;
-                        break;
-                    case 2:                                     //monstro vai para cima
-                        monstro[m].mov_x = 0;
-                        monstro[m].mov_y = -1;
-                        break;
-                    case 3:                                     //monstro vai para esquerda
-                        monstro[m].mov_x = -1;
-                        monstro[m].mov_y = 0;
-                        break;
-                    case 4:                                     //monstro vai para direita
-                        monstro[m].mov_x = 1;
-                        monstro[m].mov_y = 0;
-                        break;
-                    }
+                switch (mapa[by][cx])
+                {
+                case 0:                                     //monstro continua com a movimentação anterior
+                    monstro[m].mov_x = monstro[m].mov_x;
+                    monstro[m].mov_y = monstro[m].mov_y;
+                    break;
+                case 1:                                     //monstro vai para baixo
+                    monstro[m].mov_x = 0;
+                    monstro[m].mov_y = 1;
+                    break;
+                case 2:                                     //monstro vai para cima
+                    monstro[m].mov_x = 0;
+                    monstro[m].mov_y = -1;
+                    break;
+                case 3:                                     //monstro vai para esquerda
+                    monstro[m].mov_x = -1;
+                    monstro[m].mov_y = 0;
+                    break;
+                case 4:                                     //monstro vai para direita
+                    monstro[m].mov_x = 1;
+                    monstro[m].mov_y = 0;
+                    break;
+                }
             }
 
             if(monstro[m].health <= 0)
@@ -731,3 +798,4 @@ void draw_tiro(Torre torre[], int t)  //Desenha o tiro durante a trajetória
             al_draw_filled_circle(torre[i].tiro.xlocation, torre[i].tiro.ylocation, 5, al_map_rgb(255, 255, 255));
     }
 }
+
