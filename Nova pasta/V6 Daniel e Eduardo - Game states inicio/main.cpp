@@ -121,8 +121,9 @@ int main(int argc, char const *argv[])
     {
         ALLEGRO_EVENT evento;                         //Variavel para eventos
         al_wait_for_event(fila_eventos, &evento);
-
-        if(gamestate == 0)
+        switch(gamestate)
+        {
+        case 0:
         {
             if(evento.type == ALLEGRO_EVENT_TIMER)
             {
@@ -140,9 +141,10 @@ int main(int argc, char const *argv[])
                     break;
                 }
             }
+            break;
         }
 
-        if(gamestate == 1)
+        case 1:
         {
 
             if(evento.type == ALLEGRO_EVENT_TIMER)
@@ -253,8 +255,9 @@ int main(int argc, char const *argv[])
                     break;
                 }
             }
+            break;
         }
-        if(gamestate == 2)
+        case 2:
         {
             if(evento.type == ALLEGRO_EVENT_TIMER)
             {
@@ -266,12 +269,15 @@ int main(int argc, char const *argv[])
                 {
                 case ALLEGRO_KEY_R:
                     gamestate = 1;
+                    init_system(sistema);
                     break;
                 case ALLEGRO_KEY_ESCAPE:
                     GameOver = true;
                     break;
                 }
             }
+            break;
+        }
         }
 
         if(render && al_is_event_queue_empty(fila_eventos))
@@ -539,7 +545,7 @@ void start_horda(Monstro monstro[], int n_monstros, int n_hordas)
                     {
                     case 6:
                         monstro[m].xlocation = 0 - ((m - 1) * 40);
-                        monstro[m].ylocation = i * a_celula + 5;
+                        monstro[m].ylocation = i * a_celula;
                         monstro[m].health = 20 + (n_hordas*5 ) * 1.4;
                         monstro[m].speed = 3;
                         monstro[m].mov_x = 1;
