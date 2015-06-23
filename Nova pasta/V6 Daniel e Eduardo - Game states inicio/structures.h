@@ -48,6 +48,7 @@ struct Torre{
 	int range;			//Alcance da torre
 	int price;
 	int live;
+	int upgrade;
 	bool in_mouse;		//Se ela está no mouse
 	struct Tiro tiro;
 };
