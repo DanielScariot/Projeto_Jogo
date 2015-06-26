@@ -15,12 +15,12 @@ void init_system(Sistema &sistema); //Carrega informaçoes das torres
 void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
 
 //Funçoes dos montros
-void init_horda(Monstro monstro[], int n_monstros, int n_hordas);
-void start_horda(Monstro monstro[], int n_monstros, int n_hordas);
-void update_horda(Monstro monstro[], Sistema &sistema, int mapa[A][B], int n_monstros);
-void draw_horda(Monstro monstro[], int n_monstros, ALLEGRO_BITMAP *imagem);
-void colisao_horda(Torre torre[], Monstro monstro[], int t, int n_monstros, Sistema &sistema, int *resposta);
-void monstros_mortos(Monstro monstro[], int n_monstros);
+void init_horda(Monstro monstro[][], int n_monstros, int n_hordas, int tipos_monstros);
+void start_horda(Monstro monstro[][], int n_monstros, int n_hordas, int tipos_monstros);
+void update_horda(Monstro monstro[][], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros);
+void draw_horda(Monstro monstro[][], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros);
+void colisao_horda(Torre torre[], Monstro monstro[][], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros);
+void monstros_mortos(Monstro monstro[][], int n_monstros, int tipos_monstros);
 
 //Funçoes das torres
 void setup_tower(Torre torre[], Tipo &tipo, int t, int r, int l);
@@ -37,8 +37,8 @@ void setup_torre2(Tipo &tipo2);
 
 //Funçoes dos tiros
 void draw_tiro(Torre torre[], int t);
-void fire_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
-void update_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
+void fire_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int tipos_monstros);
+void update_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int tipos_monstros);
 
 //restart functions
 void setup_array(int mapa[A][B]);
@@ -50,12 +50,17 @@ int main(int argc, char const *argv[])
 {
     int n_monstros = 20;          //Numero de monstros de cada horda
     int n_hordas = 0;             //Numero de hordas chamadas
+    bool nova_horda = true;       //Chama nova horda
+    int tipos_monstros = 2
 
 
     bool torre_mouse = false;     //Se a torre está no mouse
     bool info_torre = false;      //Chama a funçao de informaçoes da torre
     bool compra_torre = false;    //Exibe as informaçoes da torre a ser comprada
+    bool upgrade_torre;           //Guarda os upgrades da torre]
 
+    int tower_posx = 0;           //Posiçao x de determinada torre
+    int tower_posy = 0;           //Posiçao y de determinada torre
     int torre_ID;                 //Identifica as torres
     int t = 0;                    //Contagem das torres
     int t_1, t_2;                 //Contagem para disparo
@@ -64,14 +69,14 @@ int main(int argc, char const *argv[])
     int l;                        //Variável para linhas
     bool render = false;          //Renderizaçao
 
-    int resposta = 0;
+    int resposta = 0;             //Resposta se os monstros estão todos mortos
 
-    int gamestate = 0;
+    int gamestate = 0;            //Gamestates
 
     //Setup inicial
     Sistema sistema;
 
-    Monstro monstro[n_monstros];
+    Monstro monstro[tipos_monstros][n_monstros];
 
     Tipo tipo_torre;
     Tipo tipo1;
@@ -85,6 +90,7 @@ int main(int argc, char const *argv[])
     ALLEGRO_BITMAP *imagem = NULL;              //  ''     para imagem
     ALLEGRO_TIMER *timer = NULL;                //  ''     para o tempo (fps)
     ALLEGRO_FONT *fonte = NULL;                 //  ''     para fonte
+    ALLEGRO_FONT *FonteMenu = NULL;
     ALLEGRO_FONT *fonte40 = NULL;
 
     //Inicializa o allegro, mouse e add-ons
@@ -96,7 +102,7 @@ int main(int argc, char const *argv[])
     al_init_ttf_addon();
 
     //Setup inicial do sistema, monstros e torres
-    init_horda(monstro, n_monstros, n_hordas);
+    init_horda(monstro, n_monstros, n_hordas, tipos_monstros);
     init_system(sistema);
 
     setup_torre1(tipo1);
@@ -110,6 +116,7 @@ int main(int argc, char const *argv[])
     imagem = al_load_bitmap("virus.png");
     timer = al_create_timer(1.0 / fps);
     fonte = al_load_font("arial.ttf", 12, 0);
+    FonteMenu = al_load_font("coure.fon", 18, 0);
     fonte40 = al_load_font("arial.ttf", 40, 0);
 
     //Inicializa o mouse e tempo
@@ -184,7 +191,7 @@ int main(int argc, char const *argv[])
                     {
                         if(t_1 >= fps*(torre[j].fire_rate))
                         {
-                            fire_tiro(torre, monstro, t, n_monstros); //Dispara tiros
+                            fire_tiro(torre, monstro, t, n_monstros, tipos_monstros); //Dispara tiros
                             t_1 = 0;
                         }
                     }
@@ -193,15 +200,15 @@ int main(int argc, char const *argv[])
                     {
                         if(t_2 >= fps*(torre[j].fire_rate))
                         {
-                            fire_tiro(torre, monstro, t, n_monstros); //Dispara tiros
+                            fire_tiro(torre, monstro, t, n_monstros, tipos_monstros); //Dispara tiros
                             t_2 = 0;
                         }
                     }
                 }
 
-                update_horda(monstro, sistema, mapa, n_monstros);
-                update_tiro(torre, monstro, t, n_monstros);
-                colisao_horda(torre, monstro, t, n_monstros, sistema, &resposta);
+                update_horda(monstro, sistema, mapa, n_monstros, tipos_monstros);
+                update_tiro(torre, monstro, t, n_monstros, tipos_monstros);
+                colisao_horda(torre, monstro, t, n_monstros, sistema, &resposta, tipos_monstros);
 
                 t_1++;
                 t_2++;
@@ -280,6 +287,7 @@ int main(int argc, char const *argv[])
                     sistema.money -= 60;
                     torre_ID = find_tower_ID(torre, t, r, l);
                     upgrade_tower(torre, upgrade1_torre1, torre_ID);
+                    upgrade_torre = true;
                 }
             }
 
@@ -290,7 +298,7 @@ int main(int argc, char const *argv[])
                     switch(evento.keyboard.keycode)
                     {
                     case ALLEGRO_KEY_SPACE: //Inicializa uma nova horda
-                        start_horda(monstro, n_monstros, n_hordas);
+                        start_horda(monstro, n_monstros, n_hordas, tipos_monstros);
                         n_hordas++;
                         break;
                     }
@@ -311,7 +319,7 @@ int main(int argc, char const *argv[])
                 {
                 case ALLEGRO_KEY_R:
                     init_system(sistema);
-                    init_horda(monstro, n_monstros, n_hordas);
+                    init_horda(monstro, n_monstros, n_hordas, tipos_monstros);
                     restart_tower(torre, t);
                     n_hordas = 0;
                     setup_array(mapa);
@@ -350,7 +358,7 @@ int main(int argc, char const *argv[])
             Mouse debug     al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "l:%i r:%i", l, r);
                             al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y + 15, ALLEGRO_ALIGN_CENTRE, "mapa[l][r]: %i", mapa[l][r]);
             */
-            draw_horda(monstro, n_monstros, imagem); //Desenha os montros
+            draw_horda(monstro, n_monstros, imagem, tipos_monstros); //Desenha os montros
 
             if(torre_mouse)
             {
@@ -541,7 +549,7 @@ void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenh
     }
 }
 
-void init_horda(Monstro monstro[], int n_monstros, int n_hordas) //Setup inicial da horda
+void init_horda(Monstro monstro[][], int n_monstros, int n_hordas, int tipos_monstros); //Setup inicial da horda
 {
 
     int m = 0;
@@ -555,7 +563,7 @@ void init_horda(Monstro monstro[], int n_monstros, int n_hordas) //Setup inicial
     }
 }
 
-void draw_horda(Monstro monstro[], int n_monstros, ALLEGRO_BITMAP *imagem)
+void draw_horda(Monstro monstro[][], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros);
 {
     int m = 0;
     for(m = 0; m < n_monstros; m++)
@@ -567,7 +575,7 @@ void draw_horda(Monstro monstro[], int n_monstros, ALLEGRO_BITMAP *imagem)
     }
 }
 
-void start_horda(Monstro monstro[], int n_monstros, int n_hordas)
+void start_horda(Monstro monstro[][], int n_monstros, int n_hordas, int tipos_monstros);
 {
     int m = 0;
     int i = 0;
@@ -597,9 +605,10 @@ void start_horda(Monstro monstro[], int n_monstros, int n_hordas)
     }
 }
 
-void update_horda(Monstro monstro[], Sistema &sistema, int mapa[A][B], int n_monstros)
+void update_horda(Monstro monstro[][], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros);
 {
     int m = 0;
+    int i = 0;
     for(m = 0; m < 10; m++)
     {
         if(monstro[m].stillalive)
@@ -825,7 +834,7 @@ int find_tower_ID(Torre torre[], int t, int r, int l)  //Encontra o ID da torre 
     }
 }
 
-void fire_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros)  //Verifica os montros e atira casa algum esteja vivo
+void fire_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int tipos_monstros);  //Verifica os montros e atira casa algum esteja vivo
 {
     int m = 0;
     for(m = 0; m < n_monstros; m++)
@@ -851,7 +860,7 @@ void fire_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros)  //Verif
     }
 }
 
-void update_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros)  //Atualiza a posiçao do tiro
+void update_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int tipos_monstros);  //Atualiza a posiçao do tiro
 {
     for(int i = 0; i < t+1; i++)
     {
@@ -879,7 +888,7 @@ void update_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros)  //Atu
     }
 }
 
-void colisao_horda(Torre torre[], Monstro monstro[], int t, int n_monstros, Sistema &sistema, int *resposta)  //Detecta se um tiro atingiu algum monstro
+void colisao_horda(Torre torre[], Monstro monstro[][], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros);  //Detecta se um tiro atingiu algum monstro
 {
     int vivos;
     for(int m = 0; m < n_monstros; m++)
