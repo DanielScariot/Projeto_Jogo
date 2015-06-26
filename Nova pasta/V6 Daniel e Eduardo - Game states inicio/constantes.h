@@ -1,7 +1,7 @@
 //Arquivo das constantes e globais
 
 const int fps = 60;
-const int A = 23; //Linhas
+const int A = 25; //Linhas
 const int B = 32; //Colunas
 const int LARGURA_TELA = 1024;
 const int ALTURA_TELA = 720;

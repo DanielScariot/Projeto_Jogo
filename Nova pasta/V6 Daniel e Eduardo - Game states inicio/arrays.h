@@ -1,6 +1,6 @@
 
 /*
-Explicaçaoo dos numeros na matriz:
+Explicaçao dos numeros na matriz:
 
 Background:
 Numero 0: Local de contruçao das torres
@@ -13,18 +13,23 @@ Numero 4 representa uma mudan�a na dire��o, o monstro ir� come�ar a ir
 Numero 5 representa a parede que ir� beirar o caminho dos inimigos;
 Numero 6 representa o local onde os monstros ser�o criados (o local de spawn);
 
-Compra e posicionamento das torres:
-Numero 9 indica o local de compra da torre do tipo 1
-Numero 10 indica que há uma torre do tipo 1 construída -- Dinamico
+
+***** Padrao de numeraçao das torres ******
+
+    Multiplos de 10 sao o botao para a compra das torres e a desena representao tipo da respectiva torre.
+        Ex. 10 compra o torre do tipo 1
+            20 a torre do tipo 2
+    Continuaçao da contagem retorna os upgrades do respectivo tipo de torre:
+        EX. 11 - Torre do tipo 1 com upgrade 1(inicial)
+            22 - Torre do tipo 2 com upgrade 2.
+
 
 Numero 90 representa o sistema
 
 
 */
 int mapa[A][B] = {
-   //                                                    A A A A A A
-   //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z A B C D E F
-   //0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1
+  // 0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1
     {0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
     {5,5,5,5,5,5,5,0,5,4,4,4,4,4,4,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //1
     {6,4,4,4,4,1,5,0,5,2,5,5,5,5,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //2
@@ -39,13 +44,13 @@ int mapa[A][B] = {
     {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //11
     {0,0,0,0,0,0,0,0,0,0,5,1,3,3,3,3,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //12
     {0,0,0,0,0,0,0,0,0,0,5,1,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //13
-    {0,0,0,0,0,0,0,0,0,0,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,90}, //14
+    {0,0,0,0,0,0,0,0,0,0,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,90},//14
     {0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}, //15
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //16
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //17
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //18
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //19
+    {0,10,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0},//19
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //20
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0}, //21
+    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //21
     {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //22
  };
