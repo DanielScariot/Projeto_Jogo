@@ -4,24 +4,22 @@ enum IDS{PLAYER, BULLET, ENEMY, TOWER};
 //Parametros do sistema
 struct Sistema
 {
-	int ID;
-	int x;
-	int y;
+	int x, y;			//Posiçao
 	int lives;			//Vidas restantes do sistema
-	int boundx;
-	int boundy;
 	float money;		//Poder de compra do sistema
-	int score;			//Score (po enquanto monstros mortos)
+	int score;			//Score (por enquanto monstros mortos)
+	int boundx;			//Para colisao
+	int boundy;
 };
 
 //Monstros
 struct Monstro{
     int ID;
-    int health;         	//VIDA DO MONSTRO
-    float speed;          	//VELOCIDADE DO MONSTRO
-    float xlocation;      	//LOCALIZA��O X DO MONSTRO
-    float ylocation;      	//LOCALIZA��O Y DO MONSTRO
-    bool stillalive;    	//TRUE = VIVO    FALSE = MORTO
+    int health;         //VIDA DO MONSTRO
+    float speed;        //VELOCIDADE DO MONSTRO
+    float xlocation;    //LOCALIZA��O X DO MONSTRO
+    float ylocation;    //LOCALIZA��O Y DO MONSTRO
+    bool stillalive;    //TRUE = VIVO    FALSE = MORTO
     int boundx;
     int boundy;
     float mov_y;
@@ -30,16 +28,16 @@ struct Monstro{
 
 //Tiros das torres; utiliza a struct Monstro para alvo
 struct Tiro{
+	int fire_power;		//Dano
+	float speed;		//Velocidade de locomoçao do tiro -> fixo
+	bool live;			//Tiro em movimento
 	int xlocation;
 	int ylocation;
-	int fire_power;		//Poder de fogo do tiro - Dano causado no inimigo
-	float speed;		//Velocidade de locomoçao do tiro [estático]
-	bool live;
 	struct Monstro monstro;
 };
 
 struct Tipo{
-	int n;
+	int n;				//Identificaçao do tipo
 	int fire_power;		//Poder de fogo da torre
 	float fire_rate;	//Período de disparo
 	int range;			//Alcance da torre
@@ -53,14 +51,14 @@ struct Tipo{
 struct Torre{
 	int n;				//Tipo da torre
 	int ID;				//Identificaçao particular da torre
-	int fire_power;		//Poder de fogo da torre
-	float fire_rate;	//Período de disparo
-	int range;			//Alcance da torre
-	int price;
-	int live;
-	int upgrade;
-	int x;
-	int y;
+	int price;			//Preço (bc)
+	int fire_power;		//Poder de fogo da torre  -> Maior melhor
+	float fire_rate;	//Período de disparo (s)  -> Menor melhor
+	int range;			//Alcance da torre	(px)  -> Maior melhor
+	int time_to_shot;	//Contagem para o disparo
+	bool live;			//Torre ativa
+	int upgrade;		//upgrades
+	int x, y;			//Localizaçao
 	bool in_mouse;		//Se ela está no mouse
 	struct Tiro tiro;
 };
