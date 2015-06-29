@@ -1,0 +1,7 @@
+init_horda 		V
+start_horda 		v
+update_horda 		v
+draw_horda 		v
+colisao_horda 		v -+
+fire_tiro		?
+update_tiro		?

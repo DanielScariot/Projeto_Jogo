@@ -15,12 +15,11 @@ void init_system(Sistema &sistema); //Carrega informaçoes das torres
 void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
 
 //Funçoes dos montros
-void init_horda(Monstro monstro[][], int n_monstros, int n_hordas, int tipos_monstros);
-void start_horda(Monstro monstro[][], int n_monstros, int n_hordas, int tipos_monstros);
-void update_horda(Monstro monstro[][], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros);
-void draw_horda(Monstro monstro[][], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros);
-void colisao_horda(Torre torre[], Monstro monstro[][], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros);
-void monstros_mortos(Monstro monstro[][], int n_monstros, int tipos_monstros);
+void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros);
+void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros);
+void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros);
+void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros);
+void colisao_horda(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros);
 
 //Funçoes das torres
 void setup_tower(Torre torre[], Tipo &tipo, int t, int r, int l);
@@ -37,8 +36,8 @@ void setup_torre2(Tipo &tipo2);
 
 //Funçoes dos tiros
 void draw_tiro(Torre torre[], int t);
-void fire_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int tipos_monstros);
-void update_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int tipos_monstros);
+void fire_tiro(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, int tipos_monstros);
+void update_tiro(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, int tipos_monstros);
 
 //restart functions
 void setup_array(int mapa[A][B]);
@@ -48,11 +47,8 @@ void restart_tower(Torre torre[], int t);
 
 int main(int argc, char const *argv[])
 {
-    int n_monstros = 20;          //Numero de monstros de cada horda
     int n_hordas = 0;             //Numero de hordas chamadas
     bool nova_horda = true;       //Chama nova horda
-    int tipos_monstros = 2
-
 
     bool torre_mouse = false;     //Se a torre está no mouse
     bool info_torre = false;      //Chama a funçao de informaçoes da torre
@@ -293,7 +289,8 @@ int main(int argc, char const *argv[])
 
             else if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
             {
-                if(resposta == 1)
+                printf("resposta = %d\n", resposta);
+                if(resposta == 1 || n_hordas == 0)
                 {
                     switch(evento.keyboard.keycode)
                     {
@@ -398,7 +395,7 @@ return 0;
 
 void init_system(Sistema &sistema) //Inicializa as variáveis iniciais do sistema
 {
-    sistema.lives = 10;
+    sistema.lives = 11;
     sistema.score = 0;
     sistema.money = 100;
     sistema.boundx = l_celula;
@@ -549,199 +546,323 @@ void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenh
     }
 }
 
-void init_horda(Monstro monstro[][], int n_monstros, int n_hordas, int tipos_monstros); //Setup inicial da horda
+void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros) //Setup inicial da horda
 {
-
     int m = 0;
-    for(m = 0; m < n_monstros; m++)
+    int t = 0;
+    for(t = 0; t < tipos_monstros; t++)
     {
-        monstro[m].stillalive = false;
-        monstro[m].health = 15;
-        monstro[m].speed = 5;
-        monstro[m].boundx = 35;
-        monstro[m].boundy = 35;
+        for(m = 0; m < n_monstros; m++)
+        {
+            if(t == 0)
+            {
+                monstro[t][m].stillalive = false;
+                monstro[t][m].health = 15;
+                monstro[t][m].speed = 5;
+                monstro[t][m].boundx = 35;
+                monstro[t][m].boundy = 35;
+            }
+            if(t == 1)
+            {
+                monstro[t][m].stillalive = false;
+                monstro[t][m].health = 40;
+                monstro[t][m].speed = 3;
+                monstro[t][m].boundx = 35;
+                monstro[t][m].boundy = 35;
+            }
+        }
     }
 }
-
-void draw_horda(Monstro monstro[][], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros);
+void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros)
 {
     int m = 0;
-    for(m = 0; m < n_monstros; m++)
+    int t = 0;
+    for(t = 0; t < tipos_monstros; t++)
     {
-        if(monstro[m].stillalive)
+        for(m = 0; m < n_monstros; m++)
         {
-            al_draw_bitmap(imagem, monstro[m].xlocation, monstro[m].ylocation, 0);
+            if(monstro[t][m].stillalive)
+            {
+                if(t == 0)
+                {
+                    al_draw_bitmap(imagem, monstro[t][m].xlocation, monstro[t][m].ylocation, 0);
+                }
+                else if(t == 1)
+                {
+                    al_draw_bitmap(imagem, monstro[t][m].xlocation, monstro[t][m].ylocation, 0);
+                }
+            }
         }
     }
 }
 
-void start_horda(Monstro monstro[][], int n_monstros, int n_hordas, int tipos_monstros);
+void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros)
 {
     int m = 0;
+    int t = 0;
     int i = 0;
     int j = 0;
-    for (m = 0; m < n_monstros; m++)
+    if(n_hordas == 0)               //diferentes hordas
     {
-        if(!monstro[m].stillalive)
+        for (m = 0; m < 10; m++)
         {
-            monstro[m].stillalive = true;
-            for (i = 0; i < A; i++)
+            if(!monstro[t][m].stillalive)
             {
-                for(j = 0; j < B; j++ )
+                monstro[t][m].stillalive = true;
+                printf("monstro [%d][%d] esta vivo = %d\n", t, m, monstro[t][m].stillalive);
+                for (i = 0; i < A; i++)
                 {
-                    switch (mapa[i][j])
+                    for(j = 0; j < B; j++ )
                     {
-                    case 6:
-                        monstro[m].xlocation = - 10 - ((m - 1) * 50);
-                        monstro[m].ylocation = i * a_celula;
-                        monstro[m].health = 20 + (n_hordas * 5 ) * 1.6;
-                        monstro[m].mov_x = 1;
-                        monstro[m].mov_y = 0;
-                        break;
+                        switch (mapa[i][j])
+                        {
+                        case 6:
+                            monstro[t][m].xlocation = - 10 - ((m - 1) * 40);
+                            monstro[t][m].ylocation = i * a_celula;
+                            monstro[t][m].health = 20 + (n_hordas * 3 ) * 1.6;
+                            monstro[t][m].mov_x = 1;
+                            monstro[t][m].mov_y = 0;
+                            break;
+                        }
                     }
                 }
             }
         }
     }
+    if(n_hordas == 1)
+    {
+        for(t = 0; t < tipos_monstros; t++)
+        {
+            for (m = 0; m < 10; m++)
+            {
+                if(!monstro[t][m].stillalive)
+                {
+                    monstro[t][m].stillalive = true;
+                    for (i = 0; i < A; i++)
+                    {
+                        for(j = 0; j < B; j++ )
+                        {
+                            if(t == 0)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 40);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 20 + (n_hordas * 3 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 1)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 300 - ((m - 1) * 40);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 50 + (n_hordas * 3 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(n_hordas >= 2)
+    {
+        for(t = 0; t < tipos_monstros; t++)
+        {
+            for (m = 0; m < n_monstros; m++)
+            {
+                if(!monstro[t][m].stillalive)
+                {
+                    monstro[t][m].stillalive = true;
+                    for (i = 0; i < A; i++)
+                    {
+                        for(j = 0; j < B; j++ )
+                        {
+                            if(t == 0)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 40);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 20 + (n_hordas * 3 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 1)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 300 - ((m - 1) * 40);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 50 + (n_hordas * 3 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 
-void update_horda(Monstro monstro[][], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros);
+void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros)
 {
     int m = 0;
     int i = 0;
-    for(m = 0; m < 10; m++)
+    int t = 0;
+    for(t = 0; t< tipos_monstros; t++)
     {
-        if(monstro[m].stillalive)
+        for(m = 0; m < n_monstros; m++)
         {
-            int cx = (monstro[m].xlocation + 16.5)/l_celula;    //x = meio do monstro
-            int dx = (monstro[m].xlocation + 33)/l_celula;      //x = direita do monstro
-            int ex = monstro[m].xlocation/l_celula;             //x = esquerda do monstro
-            int cy = (monstro[m].ylocation + 14.5)/a_celula;    //y = centro do monstro
-            int ay = monstro[m].ylocation/a_celula;             //y = acima do monstro
-            int by = (monstro[m].ylocation + 29)/a_celula;      //y = abaixo do monstro
-
-            if (monstro[m].mov_x == 1)                          //se o monstro estiver se locomovendo para a direita
+            if(monstro[t][m].stillalive)
             {
-                switch (mapa[cy][ex])
+                int cx = (monstro[t][m].xlocation + 16.5)/l_celula;    //x = meio do monstro
+                int dx = (monstro[t][m].xlocation + 33)/l_celula;      //x = direita do monstro
+                int ex = monstro[t][m].xlocation/l_celula;             //x = esquerda do monstro
+                int cy = (monstro[t][m].ylocation + 14.5)/a_celula;    //y = centro do monstro
+                int ay = monstro[t][m].ylocation/a_celula;             //y = acima do monstro
+                int by = (monstro[t][m].ylocation + 29)/a_celula;      //y = abaixo do monstro
+
+                if (monstro[t][m].mov_x == 1)                          //se o monstro estiver se locomovendo para a direita
                 {
-                case 0:                                     //monstro continua com a movimentação anterior
-                    monstro[m].mov_x = monstro[m].mov_x;
-                    monstro[m].mov_y = monstro[m].mov_y;
-                    break;
-                case 1:                                     //monstro vai para baixo
-                    monstro[m].mov_x = 0;
-                    monstro[m].mov_y = 1;
-                    break;
-                case 2:                                     //monstro vai para cima
-                    monstro[m].mov_x = 0;
-                    monstro[m].mov_y = -1;
-                    break;
-                case 3:                                     //monstro vai para esquerda
-                    monstro[m].mov_x = -1;
-                    monstro[m].mov_y = 0;
-                    break;
-                case 4:                                     //monstro vai para direita
-                    monstro[m].mov_x = 1;
-                    monstro[m].mov_y = 0;
-                    break;
+                    switch (mapa[cy][ex])
+                    {
+                    case 0:                                     //monstro continua com a movimentação anterior
+                        monstro[t][m].mov_x = monstro[t][m].mov_x;
+                        monstro[t][m].mov_y = monstro[t][m].mov_y;
+                        break;
+                    case 1:                                     //monstro vai para baixo
+                        monstro[t][m].mov_x = 0;
+                        monstro[t][m].mov_y = 1;
+                        break;
+                    case 2:                                     //monstro vai para cima
+                        monstro[t][m].mov_x = 0;
+                        monstro[t][m].mov_y = -1;
+                        break;
+                    case 3:                                     //monstro vai para esquerda
+                        monstro[t][m].mov_x = -1;
+                        monstro[t][m].mov_y = 0;
+                        break;
+                    case 4:                                     //monstro vai para direita
+                        monstro[t][m].mov_x = 1;
+                        monstro[t][m].mov_y = 0;
+                        break;
+                    }
                 }
-            }
 
-            if (monstro[m].mov_x == -1)                         //se o monstro estiver se locomovendo para a esquerda
-            {
-                switch (mapa[cy][dx])
+                if (monstro[t][m].mov_x == -1)                         //se o monstro estiver se locomovendo para a esquerda
                 {
-                case 0:                                     //monstro continua com a movimentação anterior
-                    monstro[m].mov_x = monstro[m].mov_x;
-                    monstro[m].mov_y = monstro[m].mov_y;
-                    break;
-                case 1:                                     //monstro vai para baixo
-                    monstro[m].mov_x = 0;
-                    monstro[m].mov_y = 1;
-                    break;
-                case 2:                                     //monstro vai para cima
-                    monstro[m].mov_x = 0;
-                    monstro[m].mov_y = -1;
-                    break;
-                case 3:                                     //monstro vai para esquerda
-                    monstro[m].mov_x = -1;
-                    monstro[m].mov_y = 0;
-                    break;
-                case 4:                                     //monstro vai para direita
-                    monstro[m].mov_x = 1;
-                    monstro[m].mov_y = 0;
-                    break;
+                    switch (mapa[cy][dx])
+                    {
+                    case 0:                                     //monstro continua com a movimentação anterior
+                        monstro[t][m].mov_x = monstro[t][m].mov_x;
+                        monstro[t][m].mov_y = monstro[t][m].mov_y;
+                        break;
+                    case 1:                                     //monstro vai para baixo
+                        monstro[t][m].mov_x = 0;
+                        monstro[t][m].mov_y = 1;
+                        break;
+                    case 2:                                     //monstro vai para cima
+                        monstro[t][m].mov_x = 0;
+                        monstro[t][m].mov_y = -1;
+                        break;
+                    case 3:                                     //monstro vai para esquerda
+                        monstro[t][m].mov_x = -1;
+                        monstro[t][m].mov_y = 0;
+                        break;
+                    case 4:                                     //monstro vai para direita
+                        monstro[t][m].mov_x = 1;
+                        monstro[t][m].mov_y = 0;
+                        break;
+                    }
                 }
-            }
 
 
-            if (monstro[m].mov_y == 1)                          //se o monstro estiver se locomovendo para a baixo
-            {
-                switch (mapa[ay][cx])
+                if (monstro[t][m].mov_y == 1)                          //se o monstro estiver se locomovendo para a baixo
                 {
-                case 0:                                     //monstro continua com a movimentação anterior
-                    monstro[m].mov_x = monstro[m].mov_x;
-                    monstro[m].mov_y = monstro[m].mov_y;
-                    break;
-                case 1:                                     //monstro vai para baixo
-                    monstro[m].mov_x = 0;
-                    monstro[m].mov_y = 1;
-                    break;
-                case 2:                                     //monstro vai para cima
-                    monstro[m].mov_x = 0;
-                    monstro[m].mov_y = -1;
-                    break;
-                case 3:                                     //monstro vai para esquerda
-                    monstro[m].mov_x = -1;
-                    monstro[m].mov_y = 0;
-                    break;
-                case 4:                                     //monstro vai para direita
-                    monstro[m].mov_x = 1;
-                    monstro[m].mov_y = 0;
-                    break;
+                    switch (mapa[ay][cx])
+                    {
+                    case 0:                                     //monstro continua com a movimentação anterior
+                        monstro[t][m].mov_x = monstro[t][m].mov_x;
+                        monstro[t][m].mov_y = monstro[t][m].mov_y;
+                        break;
+                    case 1:                                     //monstro vai para baixo
+                        monstro[t][m].mov_x = 0;
+                        monstro[t][m].mov_y = 1;
+                        break;
+                    case 2:                                     //monstro vai para cima
+                        monstro[t][m].mov_x = 0;
+                        monstro[t][m].mov_y = -1;
+                        break;
+                    case 3:                                     //monstro vai para esquerda
+                        monstro[t][m].mov_x = -1;
+                        monstro[t][m].mov_y = 0;
+                        break;
+                    case 4:                                     //monstro vai para direita
+                        monstro[t][m].mov_x = 1;
+                        monstro[t][m].mov_y = 0;
+                        break;
+                    }
                 }
-            }
 
-            if (monstro[m].mov_y == -1)     //se o monstro estiver se locomovendo para a cima
-            {
-                switch (mapa[by][cx])
+                if (monstro[t][m].mov_y == -1)     //se o monstro estiver se locomovendo para a cima
                 {
-                case 0:                                     //monstro continua com a movimentação anterior
-                    monstro[m].mov_x = monstro[m].mov_x;
-                    monstro[m].mov_y = monstro[m].mov_y;
-                    break;
-                case 1:                                     //monstro vai para baixo
-                    monstro[m].mov_x = 0;
-                    monstro[m].mov_y = 1;
-                    break;
-                case 2:                                     //monstro vai para cima
-                    monstro[m].mov_x = 0;
-                    monstro[m].mov_y = -1;
-                    break;
-                case 3:                                     //monstro vai para esquerda
-                    monstro[m].mov_x = -1;
-                    monstro[m].mov_y = 0;
-                    break;
-                case 4:                                     //monstro vai para direita
-                    monstro[m].mov_x = 1;
-                    monstro[m].mov_y = 0;
-                    break;
+                    switch (mapa[by][cx])
+                    {
+                    case 0:                                     //monstro continua com a movimentação anterior
+                        monstro[t][m].mov_x = monstro[t][m].mov_x;
+                        monstro[t][m].mov_y = monstro[t][m].mov_y;
+                        break;
+                    case 1:                                     //monstro vai para baixo
+                        monstro[t][m].mov_x = 0;
+                        monstro[t][m].mov_y = 1;
+                        break;
+                    case 2:                                     //monstro vai para cima
+                        monstro[t][m].mov_x = 0;
+                        monstro[t][m].mov_y = -1;
+                        break;
+                    case 3:                                     //monstro vai para esquerda
+                        monstro[t][m].mov_x = -1;
+                        monstro[t][m].mov_y = 0;
+                        break;
+                    case 4:                                     //monstro vai para direita
+                        monstro[t][m].mov_x = 1;
+                        monstro[t][m].mov_y = 0;
+                        break;
+                    }
                 }
-            }
 
-            if(monstro[m].health <= 0)
-            {
-                monstro[m].stillalive = false;
-                sistema.score++;
-                sistema.money += 1.5;
+                if(monstro[t][m].health <= 0)
+                {
+                    monstro[t][m].stillalive = false;
+                    sistema.score++;
+                    sistema.money += 1.5;
+                }
+                if(monstro[t][m].xlocation > sistema.x)
+                {
+                    sistema.lives--;
+                    monstro[t][m].stillalive = false;
+                }
+                monstro[t][m].xlocation += (monstro[t][m].mov_x * monstro[t][m].speed);
+                monstro[t][m].ylocation += (monstro[t][m].mov_y * monstro[t][m].speed);
             }
-            if(monstro[m].xlocation > sistema.x)
-            {
-                sistema.lives--;
-                monstro[m].stillalive = false;
-            }
-            monstro[m].xlocation += (monstro[m].mov_x * monstro[m].speed);
-            monstro[m].ylocation += (monstro[m].mov_y * monstro[m].speed);
         }
     }
 }
@@ -834,33 +955,37 @@ int find_tower_ID(Torre torre[], int t, int r, int l)  //Encontra o ID da torre 
     }
 }
 
-void fire_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int tipos_monstros);  //Verifica os montros e atira casa algum esteja vivo
+void fire_tiro(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, int tipos_monstros)  //Verifica os montros e atira casa algum esteja vivo
 {
     int m = 0;
-    for(m = 0; m < n_monstros; m++)
+    int j = 0;
+    for(j = 0; j < tipos_monstros; j++)
     {
-        if(monstro[m].stillalive)
+        for(m = 0; m < n_monstros; m++)
         {
-            for(int i = 0; i < t+1; i++)
+            if(monstro[j][m].stillalive)
             {
-                if(torre[i].live && !torre[i].tiro.live &&
-                        torre[i].x - monstro[m].xlocation <= torre[i].range &&
-                        torre[i].x - monstro[m].xlocation >= - torre[i].range &&
-                        torre[i].y - monstro[m].ylocation <= torre[i].range &&
-                        torre[i].y - monstro[m].ylocation >= - torre[i].range)
+                for(int i = 0; i < t+1; i++)
                 {
-                    torre[i].tiro.xlocation = torre[i].x;
-                    torre[i].tiro.ylocation = torre[i].y;
-                    torre[i].tiro.fire_power = torre[i].fire_power;
-                    torre[i].tiro.monstro = monstro[m];
-                    torre[i].tiro.live = true;
+                    if(torre[i].live && !torre[i].tiro.live &&
+                            torre[i].x - monstro[j][m].xlocation <= torre[i].range &&
+                            torre[i].x - monstro[j][m].xlocation >= - torre[i].range &&
+                            torre[i].y - monstro[j][m].ylocation <= torre[i].range &&
+                            torre[i].y - monstro[j][m].ylocation >= - torre[i].range)
+                    {
+                        torre[i].tiro.xlocation = torre[i].x;
+                        torre[i].tiro.ylocation = torre[i].y;
+                        torre[i].tiro.fire_power = torre[i].fire_power;
+                        torre[i].tiro.monstro = monstro[j][m];
+                        torre[i].tiro.live = true;
+                    }
                 }
             }
         }
     }
 }
 
-void update_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int tipos_monstros);  //Atualiza a posiçao do tiro
+void update_tiro(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, int tipos_monstros)   //Atualiza a posiçao do tiro
 {
     for(int i = 0; i < t+1; i++)
     {
@@ -888,30 +1013,36 @@ void update_tiro(Torre torre[], Monstro monstro[][], int t, int n_monstros, int 
     }
 }
 
-void colisao_horda(Torre torre[], Monstro monstro[][], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros);  //Detecta se um tiro atingiu algum monstro
+void colisao_horda(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros)  //Detecta se um tiro atingiu algum monstro
 {
     int vivos;
-    for(int m = 0; m < n_monstros; m++)
+    int j = 0;
+    for(j = 0; j < tipos_monstros; j++)
     {
-        if(monstro[m].stillalive)
+        for(int m = 0; m < n_monstros; m++)
         {
-            vivos++;
-            for(int i = 0; i < t+1; i++)
+            if(monstro[j][m].stillalive)
             {
-                if(torre[i].tiro.live)  //Verificacao da localizaçao
+                printf("monstro [%d][%d] esta vivo", j, m);
+                vivos++;
+                for(int i = 0; i < t+1; i++)
                 {
-                    if( torre[i].tiro.xlocation > (torre[i].tiro.monstro.xlocation - torre[i].tiro.monstro.boundx) &&
-                            torre[i].tiro.xlocation < (torre[i].tiro.monstro.xlocation + torre[i].tiro.monstro.boundx) &&
-                            torre[i].tiro.ylocation > (torre[i].tiro.monstro.ylocation - torre[i].tiro.monstro.boundy) &&
-                            torre[i].tiro.ylocation < (torre[i].tiro.monstro.ylocation + torre[i].tiro.monstro.boundy))
+                    if(torre[i].tiro.live)  //Verificacao da localizaçao
                     {
-                        monstro[m].health -= torre[i].tiro.fire_power;
-                        torre[i].tiro.live = false;
+                        if( torre[i].tiro.xlocation > (torre[i].tiro.monstro.xlocation - torre[i].tiro.monstro.boundx) &&
+                                torre[i].tiro.xlocation < (torre[i].tiro.monstro.xlocation + torre[i].tiro.monstro.boundx) &&
+                                torre[i].tiro.ylocation > (torre[i].tiro.monstro.ylocation - torre[i].tiro.monstro.boundy) &&
+                                torre[i].tiro.ylocation < (torre[i].tiro.monstro.ylocation + torre[i].tiro.monstro.boundy))
+                        {
+                            monstro[j][m].health -= torre[i].tiro.fire_power;
+                            torre[i].tiro.live = false;
+                        }
                     }
                 }
             }
         }
     }
+    printf("vivos = %d\n", vivos);
     if(vivos == 0)
     {
         *resposta = 1;
