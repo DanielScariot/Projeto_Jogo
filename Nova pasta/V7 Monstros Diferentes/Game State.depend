@@ -308,3 +308,21 @@
 
 1435583088 c:\users\pecce\documents\daniel scariot\projeto_jogo\nova pasta\v7 monstros diferentes\arrays.h
 
+1435608378 source:c:\users\aluno\desktop\projeto_jogo\nova pasta\v7 monstros diferentes\main.cpp
+	<stdio.h>
+	<math.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"structures.h"
+	"constantes.h"
+	"arrays.h"
+
+1435601058 c:\users\aluno\desktop\projeto_jogo\nova pasta\v7 monstros diferentes\structures.h
+
+1435601058 c:\users\aluno\desktop\projeto_jogo\nova pasta\v7 monstros diferentes\constantes.h
+
+1435601058 c:\users\aluno\desktop\projeto_jogo\nova pasta\v7 monstros diferentes\arrays.h
+

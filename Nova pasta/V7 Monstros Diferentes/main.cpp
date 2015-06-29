@@ -9,22 +9,22 @@
 #include "constantes.h"  //Variaveis constantes globais
 #include "arrays.h"      //Matrizes importantes
 
-int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Fun�ao falha na inicializa�ao
+int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha); //Fun�ao falha na inicializa�ao
 void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
 void init_system(Sistema &sistema); //Carrega informaçoes das torres
-void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
+void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end); //Desenha a matriz para fins de debug
 
 //Funçoes dos montros
 void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros);
 void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros);
 void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros);
-void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros);
+void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros, ALLEGRO_BITMAP *monstro2);
 void colisao_horda(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros);
 
 //Funçoes das torres
 void setup_tower(Torre torre[], Tipo &tipo, int t, int r, int l);
 void draw_mouse_tower(int r, int l, Tipo &tipo);
-void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte);
+void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *torre1);
 void show_tower_information(Torre torre[], int t, ALLEGRO_FONT *fonte);
 void buy_tower(Tipo &tipo, ALLEGRO_FONT *fonte);
 void upgrade_tower(Torre torre[], Tipo upgrade, int t);
@@ -86,7 +86,13 @@ int main(int argc, char const *argv[])
     ALLEGRO_BITMAP *imagem = NULL;              //  ''     para imagem
     ALLEGRO_TIMER *timer = NULL;                //  ''     para o tempo (fps)
     ALLEGRO_FONT *fonte = NULL;                 //  ''     para fonte
-    ALLEGRO_FONT *FonteMenu = NULL;
+    ALLEGRO_BITMAP *trilha = NULL;
+    ALLEGRO_BITMAP *fundao = NULL;
+    ALLEGRO_BITMAP *spawn = NULL;
+    ALLEGRO_BITMAP *the_end = NULL;
+    ALLEGRO_BITMAP *monstro2 = NULL;
+    ALLEGRO_BITMAP *torre1 = NULL;
+    //ALLEGRO_FONT *FonteMenu = NULL;
     ALLEGRO_FONT *fonte40 = NULL;
 
     //Inicializa o allegro, mouse e add-ons
@@ -109,10 +115,16 @@ int main(int argc, char const *argv[])
     //Atribui atributos às variáveis allegro
     janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
     fila_eventos = al_create_event_queue();
-    imagem = al_load_bitmap("virus.png");
+    imagem = al_load_bitmap("virus.jpg");
+    trilha = al_load_bitmap("fundoc.jpg");
+    fundao = al_load_bitmap("fundod.jpg");
+    spawn = al_load_bitmap("spawn.jpg");
+    the_end = al_load_bitmap("the end.jpg");
+    monstro2 = al_load_bitmap("virus2.jpg");
+    torre1 = al_load_bitmap("halter.png");
     timer = al_create_timer(1.0 / fps);
     fonte = al_load_font("arial.ttf", 12, 0);
-    FonteMenu = al_load_font("coure.fon", 18, 0);
+    //FonteMenu = al_load_font("coure.fon", 18, 0);
     fonte40 = al_load_font("arial.ttf", 40, 0);
 
     //Inicializa o mouse e tempo
@@ -120,7 +132,7 @@ int main(int argc, char const *argv[])
     al_start_timer(timer);
     al_install_keyboard();
 
-    init_fail(janela, fonte, fila_eventos, imagem, timer); //Fun�ao de teste de inicializaçao do allegro
+    init_fail(janela, fonte, fila_eventos, imagem, timer, trilha); //Fun�ao de teste de inicializaçao do allegro
 
     //Regista os eventos da janela, mouse e timer na vari�vel de eventos (fila_eventos)
     al_register_event_source(fila_eventos, al_get_display_event_source(janela));
@@ -283,7 +295,7 @@ int main(int argc, char const *argv[])
                     sistema.money -= 60;
                     torre_ID = find_tower_ID(torre, t, r, l);
                     upgrade_tower(torre, upgrade1_torre1, torre_ID);
-                    upgrade_torre = true;
+                    //upgrade_torre = true;
                 }
             }
 
@@ -345,17 +357,17 @@ int main(int argc, char const *argv[])
         {
             al_clear_to_color(al_map_rgb(61, 10, 10));
 
-            draw_background(mapa, fonte); //Desenha o plano de fundo
-            draw_towers(mapa, sistema, fonte); //Desenha as torres
+            draw_background(mapa, fonte, trilha, fundao, spawn, the_end); //Desenha o plano de fundo
+            draw_towers(mapa, sistema, fonte, the_end, torre1); //Desenha as torres
 
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 900, 15, ALLEGRO_ALIGN_LEFT, "Vidas do sistema %i", sistema.lives);
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 900, 35, ALLEGRO_ALIGN_LEFT, "Bitcoins %.2f", sistema.money);
-            al_draw_textf(fonte, al_map_rgb(0, 0, 0), 100, 15, ALLEGRO_ALIGN_LEFT, "Monstros mortos: %i  Wave: %i", sistema.score, n_hordas);
+            al_draw_textf(fonte, al_map_rgb(255, 255, 255), 900, 15, ALLEGRO_ALIGN_LEFT, "Vidas do sistema %i", sistema.lives);
+            al_draw_textf(fonte, al_map_rgb(255, 255, 255), 900, 35, ALLEGRO_ALIGN_LEFT, "Bitcoins %.2f", sistema.money);
+            al_draw_textf(fonte, al_map_rgb(255, 255, 255), 100, 15, ALLEGRO_ALIGN_LEFT, "Monstros mortos: %i  Wave: %i", sistema.score, n_hordas);
             /*
             Mouse debug     al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "l:%i r:%i", l, r);
                             al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y + 15, ALLEGRO_ALIGN_CENTRE, "mapa[l][r]: %i", mapa[l][r]);
             */
-            draw_horda(monstro, n_monstros, imagem, tipos_monstros); //Desenha os montros
+            draw_horda(monstro, n_monstros, imagem, tipos_monstros, monstro2); //Desenha os montros
 
             if(torre_mouse)
             {
@@ -402,7 +414,7 @@ void init_system(Sistema &sistema) //Inicializa as variáveis iniciais do sistem
     sistema.boundy = a_celula;
 }
 
-int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer)
+int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha)
 {
     if (!al_init())
     {
@@ -430,6 +442,13 @@ int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE 
     {
         fprintf(stderr, "Falha ao carregar imagem.\n");
         al_destroy_bitmap(imagem);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!trilha)
+    {
+        fprintf(stderr, "Falha ao carregar imagem da trilha.\n");
+        al_destroy_bitmap(trilha);
         al_destroy_display(janela);
         return -1;
     }
@@ -464,7 +483,7 @@ void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
     al_destroy_timer(timer);
 }
 
-void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho o ultimo plano da matriz
+void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end) //Setup e desenho o ultimo plano da matriz
 {
     int i = 0;
     int j = 0;
@@ -478,26 +497,28 @@ void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho o ul
             switch (mapa[i][j])
             {
             case 0:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, fundo_azulado);
+                al_draw_bitmap(fundao,m_x,m_y,0);
                 break;
             case 1:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
+                al_draw_bitmap(trilha,m_x,m_y,ALLEGRO_FLIP_VERTICAL);
                 break;
             case 2:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
+                al_draw_bitmap(trilha,m_x,m_y,ALLEGRO_FLIP_VERTICAL);
                 break;
             case 3:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
+                al_draw_bitmap(trilha,m_x,m_y,ALLEGRO_FLIP_VERTICAL);
                 break;
             case 4:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
+                al_draw_bitmap(trilha,m_x,m_y,ALLEGRO_FLIP_VERTICAL);
                 break;
             case 5:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, fundo_azulado);
+                al_draw_bitmap(fundao,m_x,m_y,0);
                 break;
             case 6:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(200, 200, 0));
+                al_draw_bitmap(spawn,m_x,m_y,0);
                 break;
+           // case 90:
+                //al_draw_bitmap(the_end,m_x,m_y,ALLEGRO_FLIP_HORIZONTAL);
             }
             m_x += l_celula;
         }
@@ -507,7 +528,7 @@ void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho o ul
     al_draw_filled_rectangle(0, 18 * a_celula, LARGURA_TELA, ALTURA_TELA, al_map_rgb(25, 20, 0));
 }
 
-void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenha as torres; segundo plano
+void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *torre1) //Desenha as torres; segundo plano
 {
     int i = 0;
     int j = 0;
@@ -521,10 +542,10 @@ void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenh
             switch (mapa[i][j])
             {
             case 10:
-                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2 - 2, al_map_rgb(153, 0, 0));
+                al_draw_bitmap(torre1,m_x,m_y,ALLEGRO_FLIP_HORIZONTAL);
                 break;
             case 11:
-                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(100, 0, 0));
+                al_draw_bitmap(torre1,m_x,m_y,ALLEGRO_FLIP_HORIZONTAL);
                 break;
             case 20:
                 al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2 - 2, al_map_rgb(15, 150, 30));
@@ -533,7 +554,7 @@ void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenh
                 al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(15, 150, 30));
                 break;
             case 90:
-                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(15, 15, 30));
+                al_draw_bitmap(the_end,m_x,m_y,ALLEGRO_FLIP_HORIZONTAL);
                 //Define as coordenadas do sistema de acordo com a posiçao 90 na matriz
                 sistema.x = m_x;
                 sistema.y = m_y;
@@ -573,7 +594,7 @@ void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int
         }
     }
 }
-void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros)
+void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros, ALLEGRO_BITMAP *monstro2)
 {
     int m = 0;
     int t = 0;
@@ -589,7 +610,7 @@ void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALL
                 }
                 else if(t == 1)
                 {
-                    al_draw_bitmap(imagem, monstro[t][m].xlocation, monstro[t][m].ylocation, 0);
+                    al_draw_bitmap(monstro2, monstro[t][m].xlocation, monstro[t][m].ylocation, 0);
                 }
             }
         }
@@ -633,7 +654,7 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
     {
         for(t = 0; t < tipos_monstros; t++)
         {
-            for (m = 0; m < 10; m++)
+            for (m = 0; m < 8; m++)
             {
                 if(!monstro[t][m].stillalive)
                 {
@@ -692,7 +713,7 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 switch (mapa[i][j])
                                 {
                                 case 6:
-                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 40);
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 35);
                                     monstro[t][m].ylocation = i * a_celula;
                                     monstro[t][m].health = 20 + (n_hordas * 3 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
@@ -705,7 +726,7 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 switch (mapa[i][j])
                                 {
                                 case 6:
-                                    monstro[t][m].xlocation = - 300 - ((m - 1) * 40);
+                                    monstro[t][m].xlocation = - 300 - ((m - 1) * 35);
                                     monstro[t][m].ylocation = i * a_celula;
                                     monstro[t][m].health = 50 + (n_hordas * 3 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
@@ -725,7 +746,6 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
 void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros)
 {
     int m = 0;
-    int i = 0;
     int t = 0;
     for(t = 0; t< tipos_monstros; t++)
     {
@@ -772,7 +792,7 @@ void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema,
                     switch (mapa[cy][dx])
                     {
                     case 0:                                     //monstro continua com a movimentação anterior
-                        monstro[t][m].mov_x = monstro[t][m].mov_x;
+                        monstro [t][m].mov_x = monstro[t][m].mov_x;
                         monstro[t][m].mov_y = monstro[t][m].mov_y;
                         break;
                     case 1:                                     //monstro vai para baixo
@@ -1015,7 +1035,7 @@ void update_tiro(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int
 
 void colisao_horda(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros)  //Detecta se um tiro atingiu algum monstro
 {
-    int vivos;
+    int vivos = 0;
     int j = 0;
     for(j = 0; j < tipos_monstros; j++)
     {
