@@ -8,41 +8,40 @@
 #include "structures.h"  //Estruturas - Deve vir antes das constantes
 #include "constantes.h"  //Variaveis constantes globais
 #include "arrays.h"      //Matrizes importantes
+    int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Fun�ao falha na inicializa�ao
+    void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
+    void init_system(Sistema &sistema); //Carrega informaçoes das torres
+    void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
 
-int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Fun�ao falha na inicializa�ao
-void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
-void init_system(Sistema &sistema); //Carrega informaçoes das torres
-void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
+    //Funçoes dos montros
+    void init_horda(Monstro monstro[], int n_monstros, int n_hordas);
+    void start_horda(Monstro monstro[], int n_monstros, int n_hordas);
+    void update_horda(Monstro monstro[], Sistema &sistema, int mapa[A][B], int n_monstros);
+    void draw_horda(Monstro monstro[], int n_monstros, ALLEGRO_BITMAP *imagem);
+    void colisao_horda(Torre torre[], Monstro monstro[], int t, int n_monstros, Sistema &sistema, int *resposta);
+    void monstros_mortos(Monstro monstro[], int n_monstros);
 
-//Funçoes dos montros
-void init_horda(Monstro monstro[], int n_monstros, int n_hordas);
-void start_horda(Monstro monstro[], int n_monstros, int n_hordas);
-void update_horda(Monstro monstro[], Sistema &sistema, int mapa[A][B], int n_monstros);
-void draw_horda(Monstro monstro[], int n_monstros, ALLEGRO_BITMAP *imagem);
-void colisao_horda(Torre torre[], Monstro monstro[], int t, int n_monstros, Sistema &sistema, int *resposta);
-void monstros_mortos(Monstro monstro[], int n_monstros);
+    //Funçoes das torres
+    void setup_tower(Torre torre[], Tipo &tipo, int t, int r, int l);
+    void draw_mouse_tower(int r, int l, Tipo &tipo);
+    void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte);
+    void show_tower_information(Torre torre[], int t, ALLEGRO_FONT *fonte);
+    void buy_tower(Tipo &tipo, ALLEGRO_FONT *fonte);
+    void tower1_upgrades(Torre torre[], int t, Tipo &tipo, int ups);
+    void show_upgrade_information(Torre torre[], int t, Tipo &tipo, int ups, ALLEGRO_FONT *fonte);
+    int find_tower_ID(Torre torre[], int t, int r, int l);
 
-//Funçoes das torres
-void setup_tower(Torre torre[], Tipo &tipo, int t, int r, int l);
-void draw_mouse_tower(int r, int l, Tipo &tipo);
-void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte);
-void show_tower_information(Torre torre[], int t, ALLEGRO_FONT *fonte);
-void buy_tower(Tipo &tipo, ALLEGRO_FONT *fonte);
-void tower1_upgrades(Torre torre[], int t, Tipo &tipo, int ups);
-void show_upgrade_information(Torre torre[], int t, Tipo &tipo, int ups, ALLEGRO_FONT *fonte);
-int find_tower_ID(Torre torre[], int t, int r, int l);
+    void setup_torre1(Tipo &tipo1);
+    void setup_torre2(Tipo &tipo2);
 
-void setup_torre1(Tipo &tipo1);
-void setup_torre2(Tipo &tipo2);
+    //Funçoes dos tiros
+    void draw_tiro(Torre torre[], int t);
+    void fire_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
+    void update_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
 
-//Funçoes dos tiros
-void draw_tiro(Torre torre[], int t);
-void fire_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
-void update_tiro(Torre torre[], Monstro monstro[], int t, int n_monstros);
-
-//restart functions
-void setup_array(int mapa[A][B]);
-void restart_tower(Torre torre[], int t);
+    //restart functions
+    void setup_array(int mapa[A][B]);
+    void restart_tower(Torre torre[], int t);
 
 
 int main(int argc, char const *argv[])
@@ -277,8 +276,8 @@ int main(int argc, char const *argv[])
                     }
                 //}
             }
+            break;
         }
-        break;
 
         case 2: //Fim de jogo
         {
@@ -305,7 +304,7 @@ int main(int argc, char const *argv[])
             }
             break;
         }
-    }
+        }
 
         if(render && al_is_event_queue_empty(fila_eventos))
         {
@@ -361,12 +360,12 @@ int main(int argc, char const *argv[])
             }
 
         al_flip_display();
+        }
     }
-}
 
     destroy_al(janela, fonte, fila_eventos, imagem, timer); //Destroi as vari�veis allegro
 
-return 0;
+    return 0;
 }
 
 void init_system(Sistema &sistema) //Inicializa as variáveis iniciais do sistema
@@ -440,7 +439,7 @@ void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
     al_destroy_timer(timer);
 }
 
-void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho o ultimo plano da matriz
+void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho do plano de fundo
 {
     int i = 0;
     int j = 0;
@@ -483,7 +482,7 @@ void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho o ul
     al_draw_filled_rectangle(0, 18 * a_celula, LARGURA_TELA, ALTURA_TELA, al_map_rgb(25, 20, 0));
 }
 
-void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenha as torres; segundo plano
+void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenha as torres, primeiro plano
 {
     int i = 0;
     int j = 0;
@@ -805,7 +804,6 @@ void show_upgrade_information(Torre torre[], int t, Tipo &tipo, int ups, ALLEGRO
     al_draw_textf(fonte, al_map_rgb(0, 0, 0), 9 * l_celula, 21 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %i", tipo.range + (7 * ups));
     al_draw_textf(fonte, al_map_rgb(0, 0, 0), 9 * l_celula, 22 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %.2fs", torre[t].fire_rate - (0.07 / (ups)));
 }
-
 
 int find_tower_ID(Torre torre[], int t, int r, int l)  //Encontra o ID da torre selecionada
 {

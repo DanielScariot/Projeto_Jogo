@@ -16,19 +16,21 @@ Numero 6 representa o local onde os monstros ser�o criados (o local de spawn);
 
 ***** Padrao de numeraçao das torres ******
 
-    Multiplos de 10 sao o botao para a compra das torres e a desena representao tipo da respectiva torre.
+    Multiplos de 10 sao os botoes para a compra das torres e a desena representao tipo da respectiva torre.
         Ex. 10 compra o torre do tipo 1
             20 a torre do tipo 2
-    Continuaçao da contagem retorna os upgrades do respectivo tipo de torre:
-        EX. 11 - Torre do tipo 1 com upgrade 1(inicial)
-            22 - Torre do tipo 2 com upgrade 2.
-
-
+    Continuaçao da contagem retorna a torre colocada no mapa.
+        Ex. 11 - Torre do tipo 1
+            21 - Torre do tipo 2
+    Segunda continuaçao da contagem sao os botoes para upgrade da torre.
+        Ex. 12 - Upgrades para a torre do tipo 1
+            22 - Upgrades para a torre do tipo 2
 Numero 90 representa o sistema
 
-
 */
+
 int mapa[A][B] = {
+  //                     1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3 
   // 0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1
     {0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
     {5,5,5,5,5,5,5,0,5,4,4,4,4,4,4,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //1
