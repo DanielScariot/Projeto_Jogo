@@ -1,4 +1,6 @@
-Fazer um jogo do estilo tower defense.
-Os inimigos, que no caso ser„o virus cibernÈticos, malwares, trojans, ir„o dar spawn (nascer/ser criado) e passar„o por um caminho definido, com o objetivo de chegar atÈ o final deste (sistema do protagonista).
-O player ter· como objetivo destruir estes inimigos, evitando que eles invadam o seu sistema.
-Para fazer isso ser· necess·rio que o jogador aloque torres (anti-virus, firewall, softwares de seguranÁa em geral) ao longo deste caminho pelo qual os inimigos passar„o.
+Jogo do estilo tower defense,
+
+Os inimigos - virus, malwares, trojans - ir√£o dar spawn (nascer/ser criado), passar√£o por um caminho definido, com o objetivo de chegar at√© o final deste (sistema do protagonista).
+
+O player ter√° como objetivo destruir estes inimigos, evitando que eles invadam o seu sistema.
+Para fazer o jogardor ir√° comprar torres (anti-virus, firewall, softwares de seguran√ßa em geral) e posiciona-los ao longo do caminho para atirar proj√©ties nos inimigos que passarem por ali.
