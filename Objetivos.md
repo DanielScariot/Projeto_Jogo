@@ -1,5 +1,5 @@
 Diferentes hordas, com numero de monstros diferentes e uma certa diversidade de monstro;
-Ajuste da movimentação;
+Ajuste da movimentaÃ§Ã£o;
 Adicionar uma variedade de torres;
 Adicionar score, vida e dinheiro.
 
