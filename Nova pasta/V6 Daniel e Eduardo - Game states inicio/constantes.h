@@ -10,6 +10,8 @@ const int l_celula = LARGURA_TELA / B; //Largura da célula
 int pos_x = 0;                         //Posiçao x do mouse
 int pos_y = 0;                         //Posiçao y do mouse
 bool GameOver = false;
+const int n_monstros = 20;
+const int tipos_monstros = 2;
 
 
 //  Cores:

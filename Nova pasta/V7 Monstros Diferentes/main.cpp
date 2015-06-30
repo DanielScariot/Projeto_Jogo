@@ -92,7 +92,6 @@ int main(int argc, char const *argv[])
     ALLEGRO_BITMAP *the_end = NULL;
     ALLEGRO_BITMAP *monstro2 = NULL;
     ALLEGRO_BITMAP *torre1 = NULL;
-    //ALLEGRO_FONT *FonteMenu = NULL;
     ALLEGRO_FONT *fonte40 = NULL;
 
     //Inicializa o allegro, mouse e add-ons
@@ -124,7 +123,6 @@ int main(int argc, char const *argv[])
     torre1 = al_load_bitmap("halter.png");
     timer = al_create_timer(1.0 / fps);
     fonte = al_load_font("arial.ttf", 12, 0);
-    //FonteMenu = al_load_font("coure.fon", 18, 0);
     fonte40 = al_load_font("arial.ttf", 40, 0);
 
     //Inicializa o mouse e tempo
