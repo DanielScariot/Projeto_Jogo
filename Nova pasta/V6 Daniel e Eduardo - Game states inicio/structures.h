@@ -43,6 +43,7 @@ struct Tipo{
 	int range;			//Alcance da torre
 	int price;			//Preço deste tipo de torre
 	int upgrade;		//Upgrades realizados
+	int upgrade_price;
 	int mapa;			//Numero a ser inserido na matriz
 	struct Tiro tiro;
 };
@@ -58,6 +59,7 @@ struct Torre{
 	int time_to_shot;	//Contagem para o disparo
 	bool live;			//Torre ativa
 	int upgrade;		//upgrades
+	int upgrade_price;
 	int x, y;			//Localizaçao
 	bool in_mouse;		//Se ela está no mouse
 	struct Tiro tiro;
