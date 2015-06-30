@@ -684,7 +684,7 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 case 6:
                                     monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 400 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].health = 400 + (n_hordas * 15 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
@@ -697,9 +697,10 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 case 6:
                                     monstro[t][m].xlocation = - 200 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 800 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].health = 800 + (n_hordas * 15 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
+                                    printf("vida do monstro = %d", monstro[t][m].health);
                                     break;
                                 }
                             }
@@ -709,7 +710,6 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
             }
         }
     }
-
 }
 
 void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros)
@@ -963,7 +963,7 @@ void fire_tiro(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t
             {
                 for(int i = 0; i < t+1; i++)
                 {
-                    if(torre[i].live && !torre[i].tiro.live &&
+                    if(torre[i].live && !torre[i].tiro.live && torre[i].time_to_shot <= 0 &&
                             torre[i].x - monstro[j][m].xlocation <= torre[i].range &&
                             torre[i].x - monstro[j][m].xlocation >= - torre[i].range &&
                             torre[i].y - monstro[j][m].ylocation <= torre[i].range &&
@@ -974,6 +974,7 @@ void fire_tiro(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t
                         torre[i].tiro.fire_power = torre[i].fire_power;
                         torre[i].tiro.monstro = monstro[j][m];
                         torre[i].tiro.live = true;
+                        torre[i].time_to_shot = fps * torre[i].fire_rate;
                     }
                 }
             }
@@ -1020,7 +1021,6 @@ void colisao_horda(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], i
         {
             if(monstro[j][m].stillalive)
             {
-                printf("monstro [%d][%d] esta vivo", j, m);
                 vivos++;
                 for(int i = 0; i < t+1; i++)
                 {
@@ -1039,7 +1039,6 @@ void colisao_horda(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], i
             }
         }
     }
-    printf("vivos = %d\n", vivos);
     if(vivos == 0)
     {
         *resposta = 1;
