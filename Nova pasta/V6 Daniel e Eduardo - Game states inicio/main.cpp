@@ -11,7 +11,7 @@
     int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Fun�ao falha na inicializa�ao
     void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
     void init_system(Sistema &sistema); //Carrega informaçoes das torres
-    void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte); //Desenha a matriz para fins de debug
+    void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end); //Desenha a matriz para fins de debug
 
     //Funçoes dos montros
     void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros);
@@ -23,7 +23,7 @@
     //Funçoes das torres
     void setup_tower(Torre torre[], Tipo &tipo, int t, int r, int l);
     void draw_mouse_tower(int r, int l, Tipo &tipo);
-    void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte);
+    void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *torre1);
     void show_tower_information(Torre torre[], int t, ALLEGRO_FONT *fonte);
     void buy_tower(Tipo &tipo, ALLEGRO_FONT *fonte);
     void tower1_upgrades(Torre torre[], int t, Tipo &tipo, int ups);
@@ -281,6 +281,7 @@ int main(int argc, char const *argv[])
                     switch(evento.keyboard.keycode)
                     {
                     case ALLEGRO_KEY_SPACE: //Inicializa uma nova horda
+
                         start_horda(monstro, n_monstros, n_hordas, tipos_monstros);
                         n_hordas++;
                         break;
@@ -331,8 +332,8 @@ int main(int argc, char const *argv[])
             {
                 al_clear_to_color(al_map_rgb(61, 10, 10));
 
-                draw_background(mapa, fonte); //Desenha o plano de fundo
-                draw_towers(mapa, sistema, fonte); //Desenha as torres
+                draw_background(mapa, fonte, trilha, fundao, spawn, the_end); //Desenha o plano de fundo
+                draw_towers(mapa, sistema, fonte, the_end, torre1); //Desenha as torres
 
                 al_draw_textf(fonte, al_map_rgb(255, 255, 255), 900, 15, ALLEGRO_ALIGN_LEFT, "Vidas do sistema %i", sistema.lives);
                 al_draw_textf(fonte, al_map_rgb(255, 255, 255), 900, 35, ALLEGRO_ALIGN_LEFT, "Bitcoins %.2f", sistema.money);
@@ -450,7 +451,7 @@ void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
     al_destroy_timer(timer);
 }
 
-void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho do plano de fundo
+void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end) //Setup e desenho o ultimo plano da matriz
 {
     int i = 0;
     int j = 0;
@@ -464,25 +465,25 @@ void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho do p
             switch (mapa[i][j])
             {
             case 0:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, fundo_azulado);
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(20, 90, 185));
                 break;
             case 1:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
+                al_draw_bitmap(trilha,m_x,m_y,ALLEGRO_FLIP_VERTICAL);
                 break;
             case 2:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
+                al_draw_bitmap(trilha,m_x,m_y,ALLEGRO_FLIP_VERTICAL);
                 break;
             case 3:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
+                al_draw_bitmap(trilha,m_x,m_y,ALLEGRO_FLIP_VERTICAL);
                 break;
             case 4:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(0, 0, 200));
+                al_draw_bitmap(trilha,m_x,m_y,ALLEGRO_FLIP_VERTICAL);
                 break;
             case 5:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, fundo_azulado);
+                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(20, 90, 185));
                 break;
             case 6:
-                al_draw_filled_rectangle(m_x, m_y, m_x + l_celula, m_y + a_celula, al_map_rgb(200, 200, 0));
+                al_draw_bitmap(spawn,m_x,m_y,0);
                 break;
             }
             m_x += l_celula;
@@ -493,13 +494,12 @@ void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte) //Setup e desenho do p
     al_draw_filled_rectangle(0, 18 * a_celula, LARGURA_TELA, ALTURA_TELA, al_map_rgb(25, 20, 0));
 }
 
-void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenha as torres, primeiro plano
+void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *torre1) //Desenha as torres; segundo plano
 {
     int i = 0;
     int j = 0;
     int m_x = 0;
     int m_y = 0;
-
     for (i=0;  i<A; i++)
     {
         for(j=0; j<B; j++)
@@ -522,7 +522,7 @@ void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte) //Desenh
                 al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(15, 150, 30));
                 break;
             case 90:
-                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(15, 15, 30));
+                al_draw_bitmap(the_end,m_x,m_y,ALLEGRO_FLIP_HORIZONTAL);
                 //Define as coordenadas do sistema de acordo com a posiçao 90 na matriz
                 sistema.x = m_x;
                 sistema.y = m_y;
@@ -547,7 +547,7 @@ void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int
             {
                 monstro[t][m].stillalive = false;
                 monstro[t][m].health = 15;
-                monstro[t][m].speed = 5;
+                monstro[t][m].speed = 4;
                 monstro[t][m].boundx = 35;
                 monstro[t][m].boundy = 35;
             }
@@ -555,7 +555,7 @@ void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int
             {
                 monstro[t][m].stillalive = false;
                 monstro[t][m].health = 40;
-                monstro[t][m].speed = 3;
+                monstro[t][m].speed = 2;
                 monstro[t][m].boundx = 35;
                 monstro[t][m].boundy = 35;
             }
@@ -600,7 +600,6 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
             if(!monstro[t][m].stillalive)
             {
                 monstro[t][m].stillalive = true;
-                printf("monstro [%d][%d] esta vivo = %d\n", t, m, monstro[t][m].stillalive);
                 for (i = 0; i < A; i++)
                 {
                     for(j = 0; j < B; j++ )
@@ -608,9 +607,9 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                         switch (mapa[i][j])
                         {
                         case 6:
-                            monstro[t][m].xlocation = - 10 - ((m - 1) * 40);
+                            monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
                             monstro[t][m].ylocation = i * a_celula;
-                            monstro[t][m].health = 20 + (n_hordas * 3 ) * 1.6;
+                            monstro[t][m].health = 400 + (n_hordas * 5 ) * 1.6;
                             monstro[t][m].mov_x = 1;
                             monstro[t][m].mov_y = 0;
                             break;
@@ -638,9 +637,9 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 switch (mapa[i][j])
                                 {
                                 case 6:
-                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 40);
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 20 + (n_hordas * 3 ) * 1.6;
+                                    monstro[t][m].health = 400 + (n_hordas * 5 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
@@ -651,9 +650,9 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 switch (mapa[i][j])
                                 {
                                 case 6:
-                                    monstro[t][m].xlocation = - 300 - ((m - 1) * 40);
+                                    monstro[t][m].xlocation = - 200 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 50 + (n_hordas * 3 ) * 1.6;
+                                    monstro[t][m].health = 800 + (n_hordas * 5 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
@@ -683,9 +682,9 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 switch (mapa[i][j])
                                 {
                                 case 6:
-                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 35);
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 20 + (n_hordas * 3 ) * 1.6;
+                                    monstro[t][m].health = 400 + (n_hordas * 5 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
@@ -696,9 +695,9 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 switch (mapa[i][j])
                                 {
                                 case 6:
-                                    monstro[t][m].xlocation = - 300 - ((m - 1) * 35);
+                                    monstro[t][m].xlocation = - 200 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 50 + (n_hordas * 3 ) * 1.6;
+                                    monstro[t][m].health = 800 + (n_hordas * 5 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
