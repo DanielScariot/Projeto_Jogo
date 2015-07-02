@@ -1,0 +1,19 @@
+# depslib dependency file v1.0
+1435845788 source:d:\documentos\projeto jogo\tutorial allegro\nova pasta\isso mesmo\main.cpp
+	<stdio.h>
+	<math.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	"structures.h"
+	"constantes.h"
+	"arrays.h"
+
+1435842898 d:\documentos\projeto jogo\tutorial allegro\nova pasta\isso mesmo\structures.h
+
+1435844406 d:\documentos\projeto jogo\tutorial allegro\nova pasta\isso mesmo\constantes.h
+
+1435842898 d:\documentos\projeto jogo\tutorial allegro\nova pasta\isso mesmo\arrays.h
+
