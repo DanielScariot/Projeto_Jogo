@@ -19,3 +19,23 @@
 
 1435935229 d:\documentos\projeto jogo\projeto_jogo\nova pasta\v8 final\tower defense\arrays.h
 
+1435949362 source:c:\users\aluno\documents\github\projeto_jogo\nova pasta\v8 final\tower defense\main.cpp
+	<stdio.h>
+	<math.h>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_primitives.h>
+	<allegro5/allegro_audio.h>
+	<allegro5/allegro_acodec.h>
+	"structures.h"
+	"constantes.h"
+	"arrays.h"
+
+1435949362 c:\users\aluno\documents\github\projeto_jogo\nova pasta\v8 final\tower defense\structures.h
+
+1435949362 c:\users\aluno\documents\github\projeto_jogo\nova pasta\v8 final\tower defense\constantes.h
+
+1435949358 c:\users\aluno\documents\github\projeto_jogo\nova pasta\v8 final\tower defense\arrays.h
+
