@@ -25,7 +25,7 @@ void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
 
     //Funçoes das torres
     void setup_tower(Torre torre[], Tipo tipo[], int t, int r, int l);
-    void draw_mouse_tower(int r, int l, Tipo tipo[]);
+    void draw_mouse_tower(int r, int l, int tmouse, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *torre2);
     void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *upgrade, ALLEGRO_BITMAP *sell, ALLEGRO_BITMAP *torre2, ALLEGRO_FONT *fonte2);
     void show_tower_information(Torre torre[], int t, ALLEGRO_FONT *fonte);
     void buy_tower(Tipo tipo[], ALLEGRO_FONT *fonte20);
@@ -65,6 +65,8 @@ int main(int argc, char const *argv[])
     int resposta = 0;
     int gamestate = 0;
     int desespero = 0;
+    int tmouse = 0;
+    bool sell_t = false;
 
     //Setup inicial
     Sistema sistema;
@@ -156,7 +158,7 @@ int main(int argc, char const *argv[])
     al_install_keyboard();
     al_install_audio();
     al_init_acodec_addon();
-    al_reserve_samples(1);
+    al_reserve_samples(3);
     init_fail(janela, fonte, fila_eventos, imagem, timer, trilha, fundao, spawn, the_end, monstro2, monstro3, torre1, upgrade, sell); //Fun�ao de teste de inicializaçao do allegro
 
     musica = al_load_sample("SkyrimT.wav");
@@ -206,7 +208,6 @@ int main(int argc, char const *argv[])
             }
             break;
         }
-
         case 1:  //Jogo
         {
             al_play_sample(musica, 0.7, 0, 1, ALLEGRO_PLAYMODE_LOOP, NULL);
@@ -253,9 +254,16 @@ int main(int argc, char const *argv[])
                         mapa[19][27] = 0;
                         break;
                     case 12:
+                        sell_t = false;
                         info_ups1 = true;
                         break;
+                    case 13:
+                        info_ups1 = false;
+                        info_ups2 = false;
+                        sell_t = true;
+                        break;
                     case 22:
+                        sell_t = false;
                         info_ups2 = true;
                         break;
                     default:
@@ -268,24 +276,6 @@ int main(int argc, char const *argv[])
             {
                 switch (mapa[l][r])
                 {
-                case 10:
-                    info_torre = false;
-                    compra_torre = true;
-                    tipo_torre[0] = tipo1[0];
-                    mapa[19][27] = 0;
-                    mapa[19][28] = 0;
-                    if(sistema.money >= tipo_torre[0].price && evento.mouse.button & 1)
-                        torre_mouse = true;
-                    break;
-                case 20:
-                    info_torre = false;
-                    compra_torre = true;
-                    tipo_torre[0] = tipo2[0];
-                    mapa[19][27] = 0;
-                    mapa[19][28] = 0;
-                    if(sistema.money >= tipo_torre[0].price && evento.mouse.button & 1)
-                        torre_mouse = true;
-                    break;
                 case 11:
                     torre_ID = find_tower_ID(torre, t, r, l);
                     info_torre = true;
@@ -301,7 +291,7 @@ int main(int argc, char const *argv[])
                         mapa[20][28] = 13;
                         mapa[20][27] = 13;
                     break;
-                case 13:
+                case 13: //vende as torres
                     torre[torre_ID].live = false;
                     mapa[torre[torre_ID].l][torre[torre_ID].r] = 0;
                     mapa[19][27] = 0;
@@ -309,7 +299,7 @@ int main(int argc, char const *argv[])
                     mapa[20][27] = 0;
                     mapa[20][28] = 0;
                     sistema.money += (75 * torre[torre_ID].upgrade_price)/100;
-                    sell_tower(sistema, torre, torre_ID);
+                    sell_t = false;
                     break;
                 case 21:
                     torre_ID = find_tower_ID(torre, t, r, l);
@@ -325,18 +315,8 @@ int main(int argc, char const *argv[])
                         mapa[19][27] = 0;
                         mapa[19][28] = 0;
                     }
-                        mapa[20][28] = 23;
-                        mapa[20][27] = 23;
-                    break;
-                case 23:
-                    torre[torre_ID].live = false;
-                    mapa[torre[torre_ID].l][torre[torre_ID].r] = 0;
-                    mapa[19][27] = 0;
-                    mapa[19][28] = 0;
-                    mapa[20][27] = 0;
-                    mapa[20][28] = 0;
-                    sistema.money += (75 * torre[torre_ID].price)/100;
-                    sell_tower(sistema, torre, torre_ID);
+                        mapa[20][28] = 13;
+                        mapa[20][27] = 13;
                     break;
                 default:
                     info_torre = false;
@@ -345,10 +325,38 @@ int main(int argc, char const *argv[])
                     mapa[20][28] = 0;
                     mapa[20][27] = 0;
                 }
+                if(!torre_mouse && mapa[l][r] == 10){
+                    info_torre = false;
+                    compra_torre = true;
+                    tipo_torre[0] = tipo1[0];
+                    mapa[19][27] = 0;
+                    mapa[19][28] = 0;
+                    if(sistema.money >= tipo_torre[0].price && evento.mouse.button & 1){
+                        torre_mouse = true;
+                        tmouse = 1;
+                    }
+                }
+                if(!torre_mouse && mapa[l][r] == 20){
+                    info_torre = false;
+                    compra_torre = true;
+                    tipo_torre[0] = tipo2[0];
+                    mapa[19][27] = 0;
+                    mapa[19][28] = 0;
+                    if(sistema.money >= tipo_torre[0].price && evento.mouse.button & 1){
+                        torre_mouse = true;
+                        tmouse = 2;
+                    }
+                }
                 if(torre_mouse && (mapa[l][r] == 0 || mapa[l][r] == 5) && evento.mouse.button & 1) //Posicionamento da torre enquanto ela estiver no mouse
                 {
                     setup_tower(torre, tipo_torre, t, r, l);
                     sistema.money -= tipo_torre[0].price;      //Pagamento da torre
+                    torre_ID = find_tower_ID(torre, t, r, l);
+                    mapa[19][27] = 12;
+                    mapa[19][28] = 12;
+                    mapa[20][28] = 13;
+                    mapa[20][27] = 13;
+                    info_torre = true;
                     torre_mouse = false;
                     compra_torre = false;
                     t++;
@@ -390,6 +398,7 @@ int main(int argc, char const *argv[])
         }
         case 2: //Fim de jogo
         {
+            al_destroy_sample(musica);
             if(evento.type == ALLEGRO_EVENT_TIMER)
             {
                 render = true;
@@ -489,7 +498,7 @@ int main(int argc, char const *argv[])
 
                 if(torre_mouse)
                 {
-                    draw_mouse_tower(r, l, tipo_torre); //Desenha a torre somente enquanto ela estiver no mouse
+                    draw_mouse_tower(r, l, tmouse, torre1, torre2); //Desenha a torre somente enquanto ela estiver no mouse
                 }
                 if(info_torre)
                 {
@@ -504,6 +513,9 @@ int main(int argc, char const *argv[])
                 }
                 if(info_ups2){
                     show_upgrade_information(torre, tipo2, torre_ID, fonte);
+                }
+                if(sell_t){
+                    al_draw_textf(fonte, al_map_rgb(255, 255, 255), 9 * l_celula, 23 * a_celula, ALLEGRO_ALIGN_LEFT, "Selling price: %i", ((75 * torre[torre_ID].upgrade_price)/100));
                 }
                 al_draw_textf(fonte20, al_map_rgb(255, 255, 255), 800, 55, ALLEGRO_ALIGN_LEFT, "Segundos %i", s);
 
@@ -716,7 +728,6 @@ void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte, ALLEGRO_
                 break;
             case 12:
             case 22:
-            case 32:
                 butx = m_x;
                 buty = m_y;
                 drawbut = true;
@@ -826,7 +837,6 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
             if(!monstro[t][m].stillalive)
             {
                 monstro[t][m].stillalive = true;
-                printf("monstro[%d][%d] = vivo\n", t, m);
                 for (i = 0; i < A; i++)
                 {
                     for(j = 0; j < B; j++ )
@@ -1343,10 +1353,8 @@ void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema,
                         break;
                     }
                 }
-                printf("monstro[%d][%d] vida = %d\n", t, m, monstro[t][m].health);
                 if(monstro[t][m].health <= 0)
                 {
-                    printf("monstro [%d][%d] = morto", t,m);
                     monstro[t][m].stillalive = false;
                     sistema.score++;
                     sistema.money += 1.5;
@@ -1363,10 +1371,15 @@ void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema,
     }
 }
 
-void draw_mouse_tower(int r, int l, Tipo tipo[])  //Desenha a torre enquanto ela estiver no mouse, nao atribui parametros
+void draw_mouse_tower(int r, int l, int tmouse, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *torre2)  //Desenha a torre enquanto ela estiver no mouse, nao atribui parametros
 {
-    al_draw_filled_circle(r*l_celula + (l_celula/2), l*a_celula + (a_celula/2), l_celula/2, al_map_rgb(150, 50, 0));
-    al_draw_circle(r*l_celula + (l_celula/2), l*a_celula + (a_celula/2), tipo[0].range, al_map_rgb(10, 110, 10), 0);
+    if(tmouse == 1){
+        al_draw_tinted_bitmap(torre1, al_map_rgba(150, 150, 150, 10), r*l_celula, l*a_celula, 0);
+    }
+    else if(tmouse == 2){
+        al_draw_tinted_bitmap(torre2, al_map_rgba(150, 150, 150, 0), r*l_celula, l*a_celula, 0);
+    }
+
 }
 
 void show_tower_information(Torre torre[], int t, ALLEGRO_FONT *fonte) //Monstra as informaçoes da torre selecionada
@@ -1470,6 +1483,7 @@ void show_upgrade_information(Torre torre[], Tipo tipo[], int t, ALLEGRO_FONT *f
         al_draw_textf(fonte, al_map_rgb(255, 255, 255), 9 * l_celula, 22 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %fs", tipo[ups].fire_rate);
     }
 }
+
 int find_tower_ID(Torre torre[], int t, int r, int l)  //Encontra o ID da torre selecionada
 {
     for(int i = 0; i < t; i++)
