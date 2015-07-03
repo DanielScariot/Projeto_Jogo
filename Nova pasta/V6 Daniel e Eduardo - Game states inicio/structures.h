@@ -49,7 +49,7 @@ struct Torre{
 	bool live;				//Torre ativa
 	int upgrade;			//Upgrades
 	int upgrade_price;  	//Preco para dar upgrade
-	int r, l;
+	int r, l;				//Posicao no mapa
 	int x, y;				//Localizaçao
 	bool in_mouse;			//Se ela está no mouse
 	struct Tiro tiro;		//Estrutura Tiro

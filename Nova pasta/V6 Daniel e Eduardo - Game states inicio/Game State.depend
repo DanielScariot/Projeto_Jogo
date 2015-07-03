@@ -17,7 +17,7 @@
 
 1434934939 d:\documentos\projeto jogo\tutorial allegro\nova pasta\game state\arrays.h
 
-1435068480 source:d:\documentos\projeto jogo\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\main.cpp
+1435845194 source:d:\documentos\projeto jogo\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\main.cpp
 	<stdio.h>
 	<math.h>
 	<allegro5/allegro.h>
@@ -25,15 +25,15 @@
 	<allegro5/allegro_font.h>
 	<allegro5/allegro_ttf.h>
 	<allegro5/allegro_primitives.h>
-	"constantes.h"
 	"structures.h"
+	"constantes.h"
 	"arrays.h"
 
-1434934939 d:\documentos\projeto jogo\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\constantes.h
+1435844406 d:\documentos\projeto jogo\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\constantes.h
 
-1434936996 d:\documentos\projeto jogo\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\structures.h
+1435842898 d:\documentos\projeto jogo\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\structures.h
 
-1434934939 d:\documentos\projeto jogo\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\arrays.h
+1435842898 d:\documentos\projeto jogo\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\arrays.h
 
 1435695379 source:c:\users\aluno\documents\github\projeto_jogo\nova pasta\v6 daniel e eduardo - game states inicio\main.cpp
 	<stdio.h>

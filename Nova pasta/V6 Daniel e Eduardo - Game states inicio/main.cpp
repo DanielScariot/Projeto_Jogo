@@ -8,8 +8,9 @@
 #include "structures.h"  //Estruturas - Deve vir antes das constantes
 #include "constantes.h"  //Variaveis constantes globais
 #include "arrays.h"      //Matrizes importantes
-    int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer); //Fun�ao falha na inicializa�ao
-    void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
+
+int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1 );
+void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
     void init_system(Sistema &sistema); //Carrega informaçoes das torres
     void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end); //Desenha a matriz para fins de debug
 
@@ -17,7 +18,7 @@
     void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros);
     void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros);
     void update_horda(Monstro monstro[tipos_monstros][n_monstros], Sistema &sistema, int mapa[A][B], int n_monstros, int tipos_monstros);
-    void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros, ALLEGRO_BITMAP *monstro2);
+    void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3);
     void colisao_horda(Torre torre[], Monstro monstro[tipos_monstros][n_monstros], int t, int n_monstros, Sistema &sistema, int *resposta, int tipos_monstros);
 
     //Funçoes das torres
@@ -43,7 +44,6 @@
     //restart functions
     void setup_array(int mapa[A][B]);
     void restart_tower(Torre torre[], int t);
-
 
 int main(int argc, char const *argv[])
 {
@@ -76,14 +76,15 @@ int main(int argc, char const *argv[])
     //Declaracao vairaveis allegro
     ALLEGRO_DISPLAY *janela = NULL;	            //Vari�vel para a janela
     ALLEGRO_EVENT_QUEUE *fila_eventos = NULL;   //  ''     para eventos
-    ALLEGRO_BITMAP *imagem = NULL;              //  ''     para imagem
     ALLEGRO_TIMER *timer = NULL;                //  ''     para o tempo (fps)
     ALLEGRO_FONT *fonte = NULL;                 //  ''     para fonte
+    ALLEGRO_BITMAP *imagem = NULL;              //  ''     para imagem
     ALLEGRO_BITMAP *trilha = NULL;
     ALLEGRO_BITMAP *fundao = NULL;
     ALLEGRO_BITMAP *spawn = NULL;
     ALLEGRO_BITMAP *the_end = NULL;
     ALLEGRO_BITMAP *monstro2 = NULL;
+    ALLEGRO_BITMAP *monstro3 = NULL;
     ALLEGRO_BITMAP *torre1 = NULL;
     ALLEGRO_BITMAP *upgrade = NULL;
     ALLEGRO_BITMAP *sell = NULL;
@@ -108,13 +109,14 @@ int main(int argc, char const *argv[])
     //Atribui atributos às variáveis allegro
     janela = al_create_display(LARGURA_TELA, ALTURA_TELA);
     fila_eventos = al_create_event_queue();
-    imagem = al_load_bitmap("virus.jpg");
+    imagem = al_load_bitmap("virus.png");
     trilha = al_load_bitmap("fundoc.jpg");
     fundao = al_load_bitmap("fundod.jpg");
     spawn = al_load_bitmap("Spawn.jpg");
     the_end = al_load_bitmap("the_end.jpg");
-    monstro2 = al_load_bitmap("virus2.jpg");
-    torre1 = al_load_bitmap("halter.png");
+    monstro2 = al_load_bitmap("Virus2.png");
+    monstro3 = al_load_bitmap("virus3.jpg");
+    torre1 = al_load_bitmap("torre1.jpg");
     upgrade = al_load_bitmap("green_button.png");
     sell = al_load_bitmap("yellow_button.png");
     timer = al_create_timer(1.0 / fps);
@@ -125,7 +127,7 @@ int main(int argc, char const *argv[])
     al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
     al_start_timer(timer);
     al_install_keyboard();
-    init_fail(janela, fonte, fila_eventos, imagem, timer); //Fun�ao de teste de inicializaçao do allegro
+    init_fail(janela, fonte, fila_eventos, imagem, timer, trilha, fundao, spawn, the_end, monstro2, monstro3, torre1); //Fun�ao de teste de inicializaçao do allegro
 
     //Regista os eventos da janela, mouse e timer na vari�vel de eventos (fila_eventos)
     al_register_event_source(fila_eventos, al_get_display_event_source(janela));
@@ -180,7 +182,8 @@ int main(int argc, char const *argv[])
                 colisao_horda(torre, monstro, t, n_monstros, sistema, &resposta, tipos_monstros);
 
                 i++;
-                if(i >= 60){
+                if(i >= 60)
+                {
                     s++;
                     i = 0;
                 }
@@ -252,10 +255,16 @@ int main(int argc, char const *argv[])
                     torre_ID = find_tower_ID(torre, t, r, l);
                     info_torre = true;
                 case 12:
-                    mapa[19][27] = 12;
-                    mapa[19][28] = 12;
-                    mapa[20][28] = 13;
-                    mapa[20][27] = 13;
+                    if(torre[torre_ID].upgrade < 4){
+                        mapa[19][27] = 12;
+                        mapa[19][28] = 12;
+                    }
+                    else{
+                        mapa[19][27] = 0;
+                        mapa[19][28] = 0;
+                    }
+                        mapa[20][28] = 13;
+                        mapa[20][27] = 13;
                     break;
                 case 13:
                     torre[torre_ID].live = false;
@@ -273,10 +282,16 @@ int main(int argc, char const *argv[])
                     mapa[19][27] = 0;
                     mapa[19][28] = 0;
                 case 22:
-                    mapa[19][27] = 22;
-                    mapa[19][28] = 22;
-                    mapa[20][28] = 23;
-                    mapa[20][27] = 23;
+                    if(torre[torre_ID].upgrade < 4){
+                        mapa[19][27] = 22;
+                        mapa[19][28] = 22;
+                    }
+                    else{
+                        mapa[19][27] = 0;
+                        mapa[19][28] = 0;
+                    }
+                        mapa[20][28] = 23;
+                        mapa[20][27] = 23;
                     break;
                 case 23:
                     torre[torre_ID].live = false;
@@ -326,7 +341,7 @@ int main(int argc, char const *argv[])
             else if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
             {
                 if(resposta == 1)
-                    {
+                {
                     switch(evento.keyboard.keycode)
                     {
                     case ALLEGRO_KEY_SPACE: //Inicializa uma nova horda
@@ -390,7 +405,7 @@ int main(int argc, char const *argv[])
                 //al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y, ALLEGRO_ALIGN_LEFT, "l:%i r:%i", l, r);
                 al_draw_textf(fonte, al_map_rgb(0, 0, 0), pos_x, pos_y + 15, ALLEGRO_ALIGN_CENTRE, "mapa[l][r]: %i", mapa[l][r]);
 
-                draw_horda(monstro, n_monstros, imagem, tipos_monstros, monstro2); //Desenha os montros
+                draw_horda(monstro, n_monstros, imagem, tipos_monstros, monstro2, monstro3); //Desenha os montros
 
                 if(torre_mouse)
                 {
@@ -423,7 +438,7 @@ int main(int argc, char const *argv[])
                 al_draw_textf(fonte, al_map_rgb(0, 0, 0), LARGURA_TELA/2, (ALTURA_TELA/2) + 20, 0, "Pressione ESC para Sair");
             }
 
-        al_flip_display();
+            al_flip_display();
         }
     }
 
@@ -441,7 +456,8 @@ void init_system(Sistema &sistema) //Inicializa as variáveis iniciais do sistem
     sistema.boundy = a_celula;
 }
 
-int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer)
+int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer,
+               ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1 )
 {
     if (!al_init())
     {
@@ -468,6 +484,48 @@ int init_fail(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE 
     if (!imagem)
     {
         fprintf(stderr, "Falha ao carregar imagem.\n");
+        al_destroy_bitmap(imagem);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!trilha)
+    {
+        fprintf(stderr, "Falha ao carregar trilha.\n");
+        al_destroy_bitmap(imagem);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!spawn)
+    {
+        fprintf(stderr, "Falha ao carregar spawn.\n");
+        al_destroy_bitmap(imagem);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!the_end)
+    {
+        fprintf(stderr, "Falha ao carregar the_end.\n");
+        al_destroy_bitmap(imagem);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!monstro2)
+    {
+        fprintf(stderr, "Falha ao carregar monstro2.\n");
+        al_destroy_bitmap(imagem);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!monstro3)
+    {
+        fprintf(stderr, "Falha ao carregar monstro3.\n");
+        al_destroy_bitmap(imagem);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!torre1)
+    {
+        fprintf(stderr, "Falha ao carregar torre1.\n");
         al_destroy_bitmap(imagem);
         al_destroy_display(janela);
         return -1;
@@ -562,10 +620,10 @@ void draw_towers(int mapa[A][B], Sistema &sistema, ALLEGRO_FONT *fonte, ALLEGRO_
             switch (mapa[i][j])
             {
             case 10:
-                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2 - 2, al_map_rgb(153, 0, 0));
+                al_draw_bitmap(torre1,m_x,m_y, 0 );
                 break;
             case 11:
-                al_draw_filled_circle(m_x + (l_celula/2), m_y + (a_celula/2), l_celula/2, al_map_rgb(100, 0, 0));
+                al_draw_bitmap(torre1,m_x,m_y, 0 );
                 break;
             case 12:
             case 22:
@@ -620,6 +678,14 @@ void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int
             {
                 monstro[t][m].stillalive = false;
                 monstro[t][m].health = 40;
+                monstro[t][m].speed = 3;
+                monstro[t][m].boundx = 35;
+                monstro[t][m].boundy = 35;
+            }
+            if(t == 2)
+            {
+                monstro[t][m].stillalive = false;
+                monstro[t][m].health = 40;
                 monstro[t][m].speed = 2;
                 monstro[t][m].boundx = 35;
                 monstro[t][m].boundy = 35;
@@ -628,7 +694,7 @@ void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int
     }
 }
 
-void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros, ALLEGRO_BITMAP *monstro2)
+void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALLEGRO_BITMAP *imagem, int tipos_monstros, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3)
 {
     int m = 0;
     int t = 0;
@@ -646,6 +712,10 @@ void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALL
                 {
                     al_draw_bitmap(monstro2, monstro[t][m].xlocation, monstro[t][m].ylocation, 0);
                 }
+                else if(t == 2)
+                {
+                    al_draw_bitmap(monstro3, monstro[t][m].xlocation, monstro[t][m].ylocation, 0 );
+                }
             }
         }
     }
@@ -653,13 +723,16 @@ void draw_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, ALL
 
 void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros)
 {
+    // Monstro 1: Vida = 50 ;
+    // Monstro 2: Vida = 100 ;
+    // Monstro 3: Vida = 200 ;
     int m = 0;
     int t = 0;
     int i = 0;
     int j = 0;
     if(n_hordas == 0)     //diferentes hordas
     {
-        for (m = 0; m < 10; m++)
+        for (m = 0; m < 5; m++)
         {
             if(!monstro[t][m].stillalive)
             {
@@ -673,7 +746,7 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                         case 6:
                             monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
                             monstro[t][m].ylocation = i * a_celula;
-                            monstro[t][m].health = 400 + (n_hordas * 5 ) * 1.6;
+                            monstro[t][m].health = 50 + (n_hordas * 5 ) * 1.6;
                             monstro[t][m].mov_x = 1;
                             monstro[t][m].mov_y = 0;
                             break;
@@ -685,16 +758,68 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
     }
     if(n_hordas == 1)
     {
-        for(t = 0; t < tipos_monstros; t++)
+        for (m = 0; m < 5; m++)
         {
-            for (m = 0; m < 8; m++)
+            if(!monstro[1][m].stillalive)
+            {
+                monstro[1][m].stillalive = true;
+                for (i = 0; i < A; i++)
+                {
+                    for(j = 0; j < B; j++ )
+                    {
+                        switch (mapa[i][j])
+                        {
+                        case 6:
+                            monstro[1][m].xlocation = - 10 - ((m - 1) * 34);
+                            monstro[1][m].ylocation = i * a_celula;
+                            monstro[1][m].health = 100 + (n_hordas * 5 ) * 1.6;
+                            monstro[1][m].mov_x = 1;
+                            monstro[1][m].mov_y = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(n_hordas == 2)
+    {
+        for (m = 0; m < 5; m++)
+        {
+            if(!monstro[2][m].stillalive)
+            {
+                monstro[2][m].stillalive = true;
+                for (i = 0; i < A; i++)
+                {
+                    for(j = 0; j < B; j++ )
+                    {
+                        switch (mapa[i][j])
+                        {
+                        case 6:
+                            monstro[2][m].xlocation = - 10 - ((m - 1) * 34);
+                            monstro[2][m].ylocation = i * a_celula;
+                            monstro[2][m].health = 200 + (n_hordas * 5 ) * 1.6;
+                            monstro[2][m].mov_x = 1;
+                            monstro[2][m].mov_y = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(n_hordas == 3)
+    {
+        for(t = 0; t < 2; t++)
+        {
+            for(m = 0; m < 5; m++)
             {
                 if(!monstro[t][m].stillalive)
                 {
                     monstro[t][m].stillalive = true;
-                    for (i = 0; i < A; i++)
+                    for(i = 0; i < A; i++)
                     {
-                        for(j = 0; j < B; j++ )
+                        for(j = 0; j < B; j++)
                         {
                             if(t == 0)
                             {
@@ -703,7 +828,7 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 case 6:
                                     monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 400 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].health = 50 + (n_hordas * 5 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
@@ -716,7 +841,7 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 case 6:
                                     monstro[t][m].xlocation = - 200 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 800 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].health = 100 + (n_hordas * 5 ) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
@@ -728,18 +853,63 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
             }
         }
     }
-    if(n_hordas >= 2)
+    if(n_hordas == 4)
     {
-        for(t = 0; t < tipos_monstros; t++)
+        for(t = 1; t < 3; t++)
         {
-            for (m = 0; m < n_monstros; m++)
+            for(m = 0; m < 5; m++)
             {
                 if(!monstro[t][m].stillalive)
                 {
                     monstro[t][m].stillalive = true;
-                    for (i = 0; i < A; i++)
+                    for(i = 0; i < A; i++)
                     {
-                        for(j = 0; j < B; j++ )
+                        for(j = 0; j < B; j++)
+                        {
+                            if(t == 1)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 100 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 2)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 200 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 200 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(n_hordas == 5)
+    {
+        for(t = 0; t < 3; t++)
+        {
+            for(m = 0; m < 5; m++)
+            {
+                if(!monstro[t][m].stillalive)
+                {
+                    monstro[t][m].stillalive = true;
+                    for(i = 0; i < A; i++)
+                    {
+                        for(j = 0; j < B; j++)
                         {
                             if(t == 0)
                             {
@@ -748,7 +918,7 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 case 6:
                                     monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 400 + (n_hordas * 15 ) * 1.6;
+                                    monstro[t][m].health = 50 + (n_hordas * 5) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
@@ -761,7 +931,194 @@ void start_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, in
                                 case 6:
                                     monstro[t][m].xlocation = - 200 - ((m - 1) * 34);
                                     monstro[t][m].ylocation = i * a_celula;
-                                    monstro[t][m].health = 800 + (n_hordas * 15 ) * 1.6;
+                                    monstro[t][m].health = 100 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 2)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 400 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 200 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(n_hordas == 6)
+    {
+        for(t = 0; t < 3; t++)
+        {
+            for(m = 0; m < 7; m++)
+            {
+                if(!monstro[t][m].stillalive)
+                {
+                    monstro[t][m].stillalive = true;
+                    for(i = 0; i < A; i++)
+                    {
+                        for(j = 0; j < B; j++)
+                        {
+                            if(t == 0)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 50 + (n_hordas * 5) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 1)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 200 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 100 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 2)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 350 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 200 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(n_hordas == 7)
+    {
+        for(t = 0; t < 3; t++)
+        {
+            for(m = 0; m < 8; m++)
+            {
+                if(!monstro[t][m].stillalive)
+                {
+                    monstro[t][m].stillalive = true;
+                    for(i = 0; i < A; i++)
+                    {
+                        for(j = 0; j < B; j++)
+                        {
+                            if(t == 0)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 50 + (n_hordas * 5) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 1)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 230 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 100 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 2)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 330 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 200 + (n_hordas * 5 ) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(n_hordas >= 8)
+    {
+        for(t = 0; t < 3; t++)
+        {
+            for(m = 0; m < 8; m++)
+            {
+                if(!monstro[t][m].stillalive)
+                {
+                    monstro[t][m].stillalive = true;
+                    for(i = 0; i < A; i++)
+                    {
+                        for(j = 0; j < B; j++)
+                        {
+                            if(t == 0)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 10 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 50 + (n_hordas * 15) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 1)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 230 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 100 + (n_hordas * 15) * 1.6;
+                                    monstro[t][m].mov_x = 1;
+                                    monstro[t][m].mov_y = 0;
+                                    break;
+                                }
+                            }
+                            if(t == 2)
+                            {
+                                switch (mapa[i][j])
+                                {
+                                case 6:
+                                    monstro[t][m].xlocation = - 330 - ((m - 1) * 34);
+                                    monstro[t][m].ylocation = i * a_celula;
+                                    monstro[t][m].health = 200 + (n_hordas * 15) * 1.6;
                                     monstro[t][m].mov_x = 1;
                                     monstro[t][m].mov_y = 0;
                                     break;
@@ -941,7 +1298,7 @@ void setup_torre1(Tipo tipo1[])  //Setup da torre do tipo 1
     for (int i = 0; i < num_upgrades; i++){
         tipo1[i].price = 30 + (i * i * 20);
         tipo1[i].range = 65 + (7 * i);
-        tipo1[i].fire_rate = 0.5;
+        tipo1[i].fire_rate = 0.6 - (i*0.3)/3;
         tipo1[i].fire_power = 25 + (15 * i);
     }
 }
@@ -954,7 +1311,7 @@ void setup_torre2(Tipo tipo2[])  //Setup da torre do tipo 2
     for (int i = 0; i < num_upgrades; i++){
         tipo2[i].price = 55 + (i * i * 30);
         tipo2[i].range = 75 + (10 * i);
-        tipo2[i].fire_rate = 0.7;
+        tipo2[i].fire_rate = 1 - (i*0.2)/2 ;
         tipo2[i].fire_power = 70 + (25 * i);
     }
 }
@@ -969,7 +1326,7 @@ void setup_tower(Torre torre[], Tipo tipo[], int t, int r, int l)  //Setup da to
     torre[t].fire_rate = tipo[torre[t].upgrade].fire_rate;
     torre[t].fire_power = tipo[torre[t].upgrade].fire_power;
     torre[t].tiro.speed = tipo[torre[t].upgrade].tiro.speed;
-    torre[t].upgrade_price = tipo[torre[t].upgrade].upgrade_price;
+    torre[t].upgrade_price = tipo[torre[t].upgrade].price;
     torre[t].tiro.live = false;
     torre[t].time_to_shot = 0;
     torre[t].r = r;
@@ -991,37 +1348,36 @@ void buy_tower(Tipo tipo[], ALLEGRO_FONT *fonte) //Info compra
 void tower1_upgrades(Torre torre[], int t, Tipo tipo1[])  //Em desenvolvimento
 {
     if(torre[t].live){
+    torre[t].upgrade++;
     torre[t].upgrade_price = tipo1[torre[t].upgrade].price;
     torre[t].range = tipo1[torre[t].upgrade].range;
-    torre[t].fire_rate -= tipo1[torre[t].upgrade].fire_rate;
+    torre[t].fire_rate = tipo1[torre[t].upgrade].fire_rate;
     torre[t].fire_power = tipo1[torre[t].upgrade].fire_power;
-    torre[t].upgrade++;
     }
 }
 
 void tower2_upgrades(Torre torre[], int t, Tipo tipo2[])  //Em desenvolvimento
 {
     if(torre[t].live){
+    torre[t].upgrade++;
     torre[t].upgrade_price = tipo2[torre[t].upgrade].price;
     torre[t].range = tipo2[torre[t].upgrade].range;
-    torre[t].fire_rate -= tipo2[torre[t].upgrade].fire_rate;
+    torre[t].fire_rate = tipo2[torre[t].upgrade].fire_rate;
     torre[t].fire_power = tipo2[torre[t].upgrade].fire_power;
-    torre[t].upgrade++;
     }
 }
 
 void show_upgrade_information(Torre torre[], Tipo tipo[], int t, ALLEGRO_FONT *fonte){
     if(torre[t].live){
         int ups = torre[t].upgrade;
-        ups++;
         al_draw_textf(fonte, al_map_rgb(0, 0, 0), 9 * l_celula, 23 * a_celula, ALLEGRO_ALIGN_LEFT, "Price: %i", tipo[ups].price);
+        ups++;
         al_draw_circle(torre[t].x, torre[t].y, tipo[ups].range, al_map_rgb(100, 10, 10), 2);
         al_draw_textf(fonte, al_map_rgb(0, 0, 0), 9 * l_celula, 20 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %i", tipo[ups].fire_power);
         al_draw_textf(fonte, al_map_rgb(0, 0, 0), 9 * l_celula, 21 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %i", tipo[ups].range);
-        al_draw_textf(fonte, al_map_rgb(0, 0, 0), 9 * l_celula, 22 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %.2fs", tipo[ups].fire_rate);
+        al_draw_textf(fonte, al_map_rgb(0, 0, 0), 9 * l_celula, 22 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %fs", tipo[ups].fire_rate);
     }
 }
-
 int find_tower_ID(Torre torre[], int t, int r, int l)  //Encontra o ID da torre selecionada
 {
     for(int i = 0; i < t; i++)
