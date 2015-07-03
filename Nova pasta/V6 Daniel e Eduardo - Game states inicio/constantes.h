@@ -7,11 +7,13 @@ const int LARGURA_TELA = 1024;
 const int ALTURA_TELA = 720;
 const int a_celula = ALTURA_TELA / A;  //Altura da célula
 const int l_celula = LARGURA_TELA / B; //Largura da célula
-int pos_x = 0;                         //Posiçao x do mouse
-int pos_y = 0;                         //Posiçao y do mouse
+bool drawbut = false;
 bool GameOver = false;
 const int n_monstros = 12;
 const int tipos_monstros = 2;
+int pos_x = 0;                         //Posiçao x do mouse
+int pos_y = 0;                         //Posiçao y do mouse
+int num_upgrades = 5;
 
 
 //  Cores:

@@ -25,12 +25,15 @@ Numero 6 representa o local onde os monstros ser�o criados (o local de spawn);
     Segunda continuaçao da contagem sao os botoes para upgrade da torre.
         Ex. 12 - Upgrades para a torre do tipo 1
             22 - Upgrades para a torre do tipo 2
+    Terceira continuaçao é o botao de venda das torres
+        Ex. 13 - Vende torre do tipo 1
+            23 - Vende torre do tipo 2        
 Numero 90 representa o sistema
 
 */
 
 int mapa[A][B] = {
-  //                     1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3 
+  //                     1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
   // 0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1
     {0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //0
     {5,5,5,5,5,5,5,0,5,4,4,4,4,4,4,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //1
