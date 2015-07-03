@@ -9,8 +9,8 @@
 #include "constantes.h"  //Variaveis constantes globais
 #include "arrays.h"      //Matrizes importantes
 
-int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *upgrade, ALLEGRO_BITMAP *sell );
-void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
+int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_FONT *fonte20, ALLEGRO_FONT *fonte30, ALLEGRO_FONT *fonte40, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *upgrade, ALLEGRO_BITMAP *sell, ALLEGRO_BITMAP *telainicial, ALLEGRO_BITMAP *planofundo, ALLEGRO_BITMAP *torre2, ALLEGRO_BITMAP *loadvirus, ALLEGRO_BITMAP *theend, ALLEGRO_BITMAP *planoescrita);
+void destroy_al(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_FONT *fonte20, ALLEGRO_FONT *fonte30, ALLEGRO_FONT *fonte40, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *upgrade, ALLEGRO_BITMAP *sell, ALLEGRO_BITMAP *telainicial, ALLEGRO_BITMAP *planofundo, ALLEGRO_BITMAP *torre2, ALLEGRO_BITMAP *loadvirus, ALLEGRO_BITMAP *theend, ALLEGRO_BITMAP *planoescrita);
     void init_system(Sistema &sistema); //Carrega informaçoes das torres
     void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *planofundo); //Desenha a matriz para fins de debug
 
@@ -122,18 +122,18 @@ int main(int argc, char const *argv[])
     trilha = al_load_bitmap("fundoc.jpg");
     fundao = al_load_bitmap("fundod.jpg");
     spawn = al_load_bitmap("Spawn.jpg");
-    the_end = al_load_bitmap("the end.jpg");
+    the_end = al_load_bitmap("the_end.jpg");
     monstro2 = al_load_bitmap("Virus1.png");
     monstro3 = al_load_bitmap("virus3.jpg");
     torre1 = al_load_bitmap("torre1.jpg");
     telainicial = al_load_bitmap("PlanoFundo.jpg");
     planoescrita = al_load_bitmap("PlanoEscrita.png");
-    planofundo = al_load_bitmap("fundo.png");
+    planofundo = al_load_bitmap("fundod.jpg");
     torre2 = al_load_bitmap("torre2.png");
     loadvirus = al_load_bitmap("Baidu.png");
     upgrade = al_load_bitmap("green_button.png");
     sell = al_load_bitmap("yellow_button.png");
-    theend = al_load_bitmap("The_end.JPG");
+    theend = al_load_bitmap("theend.jpg");
     timer = al_create_timer(1.0 / fps);
     fonte = al_load_font("arial.ttf", 12, 0);
     fonte40 = al_load_font("arial.ttf", 40, 0);
@@ -144,7 +144,7 @@ int main(int argc, char const *argv[])
     al_set_system_mouse_cursor(janela, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
     al_start_timer(timer);
     al_install_keyboard();
-    init_fail(janela, fonte, fila_eventos, imagem, timer, trilha, fundao, spawn, the_end, monstro2, monstro3, torre1, upgrade, sell); //Fun�ao de teste de inicializaçao do allegro
+    init_fail(janela, fonte, fonte20, fonte30, fonte40, fila_eventos, imagem, timer, trilha, fundao, spawn, the_end, monstro2, monstro3, torre1, upgrade, sell, telainicial, planofundo, torre2, loadvirus, theend, planoescrita); //Fun�ao de teste de inicializaçao do allegro
 
     //Regista os eventos da janela, mouse e timer na vari�vel de eventos (fila_eventos)
     al_register_event_source(fila_eventos, al_get_display_event_source(janela));
@@ -166,8 +166,8 @@ int main(int argc, char const *argv[])
             GameOver = true;
         }
 
-        switch(gamestate)
-        {
+    switch(gamestate)
+    {
         case 0:  //Menu inicial
         {
             if(evento.type == ALLEGRO_EVENT_TIMER)
@@ -191,7 +191,6 @@ int main(int argc, char const *argv[])
             }
             break;
         }
-
         case 1:  //Jogo
         {
             if(evento.type == ALLEGRO_EVENT_TIMER)
@@ -208,8 +207,9 @@ int main(int argc, char const *argv[])
                     i = 0;
                 }
                 render = true;
-                if(sistema.lives <= 0)
+                if(sistema.lives <= 0){
                     gamestate = 2;
+                }
             }
             if(evento.type == ALLEGRO_EVENT_MOUSE_AXES)
             {
@@ -414,34 +414,36 @@ int main(int argc, char const *argv[])
             break;
         }
         case 3:
+        {
+            al_clear_to_color(al_map_rgb(255,255,255));
+            al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2) - 100, ALLEGRO_ALIGN_CENTRE, "BOB, um adolecente de 15 anos entrou em um site suspeito ");
+            al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2) - 50, ALLEGRO_ALIGN_CENTRE, "e seu computador acabou sendo invadido por virus");
+            al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2), ALLEGRO_ALIGN_CENTRE, "sua ultima esperança é que seu antivirus pirata o salve");
+            al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2) + 50, ALLEGRO_ALIGN_CENTRE, "e impeça que seus arquivos sejam criptografados");
+            al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2) + 100, ALLEGRO_ALIGN_CENTRE, "Assuma o controle do antivirus e salve os arquivos de BOB");
+            al_draw_text(fonte, al_map_rgb(0,0,0), LARGURA_TELA/2, (ALTURA_TELA/2) + 200, ALLEGRO_ALIGN_CENTRE, "Aperte ESPAÇO ou ENTER para continuar");
+            al_draw_text(fonte, al_map_rgb(0,0,0), LARGURA_TELA/2, (ALTURA_TELA/2) + 250, ALLEGRO_ALIGN_CENTRE, "Aperte ESC para continuar");
+            al_flip_display();
+
+            if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
             {
-                al_clear_to_color(al_map_rgb(255,255,255));
-                al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2) - 100, ALLEGRO_ALIGN_CENTRE, "BOB, um adolecente de 15 anos entrou em um site suspeito ");
-                al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2) - 50, ALLEGRO_ALIGN_CENTRE, "e seu computador acabou sendo invadido por virus");
-                al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2), ALLEGRO_ALIGN_CENTRE, "sua ultima esperança é que seu antivirus pirata o salve");
-                al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2) + 50, ALLEGRO_ALIGN_CENTRE, "e impeça que seus arquivos sejam criptografados");
-                al_draw_text(fonte30, al_map_rgb(0,0,255), LARGURA_TELA/2, (ALTURA_TELA/2) + 100, ALLEGRO_ALIGN_CENTRE, "Assuma o controle do antivirus e salve os arquivos de BOB");
-                al_draw_text(fonte, al_map_rgb(0,0,0), LARGURA_TELA/2, (ALTURA_TELA/2) + 200, ALLEGRO_ALIGN_CENTRE, "Aperte ESPAÇO ou ENTER para continuar");
-                al_draw_text(fonte, al_map_rgb(0,0,0), LARGURA_TELA/2, (ALTURA_TELA/2) + 250, ALLEGRO_ALIGN_CENTRE, "Aperte ESC para continuar");
-                al_flip_display();
-                if(evento.type == ALLEGRO_EVENT_KEY_DOWN)
+                printf("Aqui1");
+                switch(evento.keyboard.keycode)
                 {
-                    switch(evento.keyboard.keycode)
-                    {
-                    case ALLEGRO_KEY_ENTER:
-                        gamestate = 1;
-                        break;
-                    case ALLEGRO_KEY_SPACE:
-                        gamestate = 1;
-                        break;
-                    case ALLEGRO_KEY_ESCAPE:
-                        gamestate = 2;
-                        break;
+                case ALLEGRO_KEY_ENTER:
+                    gamestate = 1;
+                    break;
+                case ALLEGRO_KEY_SPACE:
+                    gamestate = 1;
+                    break;
+                case ALLEGRO_KEY_ESCAPE:
+                    gamestate = 2;
+                    break;
                 }
             }
             break;
         }
-        }
+    }
         if(render && al_is_event_queue_empty(fila_eventos))
         {
             render = false;
@@ -497,14 +499,13 @@ int main(int argc, char const *argv[])
             al_flip_display();
         }
     }
-    destroy_al(janela, fonte, fila_eventos, imagem, timer); //Destroi as vari�veis allegro
+    destroy_al(janela, fonte, fonte20, fonte30, fonte40, fila_eventos, imagem, timer, trilha, fundao, spawn, the_end, monstro2, monstro3, torre1, upgrade, sell, telainicial, planofundo, torre2, loadvirus, theend, planoescrita); //Destroi as vari�veis allegro
 
     return 0;
 }
 
 
 void init_system(Sistema &sistema) //Inicializa as variáveis iniciais do sistema
-
 {
     sistema.lives = 4;
     sistema.score = 0;
@@ -513,8 +514,7 @@ void init_system(Sistema &sistema) //Inicializa as variáveis iniciais do sistem
     sistema.boundy = a_celula;
 }
 
-int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer,
-               ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *upgrade, ALLEGRO_BITMAP *sell )
+int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_FONT *fonte20, ALLEGRO_FONT *fonte30, ALLEGRO_FONT *fonte40, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *upgrade, ALLEGRO_BITMAP *sell, ALLEGRO_BITMAP *telainicial, ALLEGRO_BITMAP *planofundo, ALLEGRO_BITMAP *torre2, ALLEGRO_BITMAP *loadvirus, ALLEGRO_BITMAP *theend, ALLEGRO_BITMAP *planoescrita)
 {
     if (!al_init())
     {
@@ -548,56 +548,56 @@ int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
     if (!trilha)
     {
         fprintf(stderr, "Falha ao carregar trilha.\n");
-        al_destroy_bitmap(imagem);
+        al_destroy_bitmap(trilha);
         al_destroy_display(janela);
         return -1;
     }
     if (!spawn)
     {
         fprintf(stderr, "Falha ao carregar spawn.\n");
-        al_destroy_bitmap(imagem);
+        al_destroy_bitmap(spawn);
         al_destroy_display(janela);
         return -1;
     }
     if (!the_end)
     {
         fprintf(stderr, "Falha ao carregar the_end.\n");
-        al_destroy_bitmap(imagem);
+        al_destroy_bitmap(the_end);
         al_destroy_display(janela);
         return -1;
     }
     if (!monstro2)
     {
         fprintf(stderr, "Falha ao carregar monstro2.\n");
-        al_destroy_bitmap(imagem);
+        al_destroy_bitmap(monstro2);
         al_destroy_display(janela);
         return -1;
     }
     if (!monstro3)
     {
         fprintf(stderr, "Falha ao carregar monstro3.\n");
-        al_destroy_bitmap(imagem);
+        al_destroy_bitmap(monstro3);
         al_destroy_display(janela);
         return -1;
     }
     if (!torre1)
     {
         fprintf(stderr, "Falha ao carregar torre1.\n");
-        al_destroy_bitmap(imagem);
+        al_destroy_bitmap(torre1);
         al_destroy_display(janela);
         return -1;
     }
     if (!upgrade)
     {
         fprintf(stderr, "Falha ao carregar upgrade.\n");
-        al_destroy_bitmap(imagem);
+        al_destroy_bitmap(upgrade);
         al_destroy_display(janela);
         return -1;
     }
     if (!sell)
     {
         fprintf(stderr, "Falha ao carregar sell.\n");
-        al_destroy_bitmap(imagem);
+        al_destroy_bitmap(sell);
         al_destroy_display(janela);
         return -1;
     }
@@ -614,6 +614,27 @@ int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
         al_destroy_display(janela);
         return -1;
     }
+    if(!fonte20)
+    {
+        fprintf(stderr, "Falha ao inicializar a fonte20.\n");
+        al_destroy_font(fonte20);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if(!fonte30)
+    {
+        fprintf(stderr, "Falha ao inicializar a fonte30.\n");
+        al_destroy_font(fonte30);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if(!fonte40)
+    {
+        fprintf(stderr, "Falha ao inicializar a fonte40.\n");
+        al_destroy_font(fonte40);
+        al_destroy_display(janela);
+        return -1;
+    }
     if(!timer)
     {
         fprintf(stderr, "Falha ao inicializar o timer.\n");
@@ -621,15 +642,83 @@ int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
         al_destroy_display(janela);
         return -1;
     }
+    if (!fundao)
+    {
+        fprintf(stderr, "Falha ao carregar fundao.\n");
+        al_destroy_bitmap(fundao);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!telainicial)
+    {
+        fprintf(stderr, "Falha ao carregar telainicial.\n");
+        al_destroy_bitmap(telainicial);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!planoescrita)
+    {
+        fprintf(stderr, "Falha ao carregar planoescrita.\n");
+        al_destroy_bitmap(planoescrita);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!planofundo)
+    {
+        fprintf(stderr, "Falha ao carregar planofundo.\n");
+        al_destroy_bitmap(planofundo);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!torre2)
+    {
+        fprintf(stderr, "Falha ao carregar torer2.\n");
+        al_destroy_bitmap(torre2);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!loadvirus)
+    {
+        fprintf(stderr, "Falha ao carregar loadvirus\n");
+        al_destroy_bitmap(loadvirus);
+        al_destroy_display(janela);
+        return -1;
+    }
+    if (!theend)
+    {
+        fprintf(stderr, "Falha ao carregar theend.\n");
+        al_destroy_bitmap(theend);
+        al_destroy_display(janela);
+        return -1;
+    }
+
 }
 
-void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer)
+void destroy_al(ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_FONT *fonte20, ALLEGRO_FONT *fonte30, ALLEGRO_FONT *fonte40, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *upgrade, ALLEGRO_BITMAP *sell, ALLEGRO_BITMAP *telainicial, ALLEGRO_BITMAP *planofundo, ALLEGRO_BITMAP *torre2, ALLEGRO_BITMAP *loadvirus, ALLEGRO_BITMAP *theend, ALLEGRO_BITMAP *planoescrita)
 {
     al_destroy_display(janela);
-    al_destroy_font(fonte);
     al_destroy_event_queue(fila_eventos);
     al_destroy_bitmap(imagem);
+    al_destroy_bitmap(trilha);
+    al_destroy_bitmap(fundao);
+    al_destroy_bitmap(spawn);
+    al_destroy_bitmap(the_end);
+    al_destroy_bitmap(monstro2);
+    al_destroy_bitmap(monstro3);
+    al_destroy_bitmap(torre1);
+    al_destroy_bitmap(telainicial);
+    al_destroy_bitmap(planoescrita);
+    al_destroy_bitmap(planofundo);
+    al_destroy_bitmap(torre2);
+    al_destroy_bitmap(loadvirus);
+    al_destroy_bitmap(upgrade);
+    al_destroy_bitmap(sell);
+    al_destroy_bitmap(theend);
     al_destroy_timer(timer);
+    al_destroy_font(fonte);
+    al_destroy_font(fonte20);
+    al_destroy_font(fonte30);
+    al_destroy_font(fonte40);
 }
 
 void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *planofundo) //Setup e desenho o ultimo plano da matriz
@@ -1446,7 +1535,7 @@ void show_upgrade_information(Torre torre[], Tipo tipo[], int t, ALLEGRO_FONT *f
         al_draw_circle(torre[t].x, torre[t].y, tipo[ups].range, al_map_rgb(100, 10, 10), 2);
         al_draw_textf(fonte, al_map_rgb(255, 255, 255), 9 * l_celula, 20 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %i", tipo[ups].fire_power);
         al_draw_textf(fonte, al_map_rgb(255, 255, 255), 9 * l_celula, 21 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %i", tipo[ups].range);
-        al_draw_textf(fonte, al_map_rgb(255, 255, 255), 9 * l_celula, 22 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %fs", tipo[ups].fire_rate);
+        al_draw_textf(fonte, al_map_rgb(255, 255, 255), 9 * l_celula, 22 * a_celula, ALLEGRO_ALIGN_LEFT, "Upgrade: %.2fs", tipo[ups].fire_rate);
     }
 }
 int find_tower_ID(Torre torre[], int t, int r, int l)  //Encontra o ID da torre selecionada
