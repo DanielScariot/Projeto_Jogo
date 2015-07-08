@@ -1,3 +1,4 @@
+//Projeto Tower Defense
 #include <stdio.h>
 #include <math.h>
 #include <allegro5/allegro.h>
@@ -13,8 +14,8 @@
 
 int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *monstro2, ALLEGRO_BITMAP *monstro3, ALLEGRO_BITMAP *torre1, ALLEGRO_BITMAP *upgrade, ALLEGRO_BITMAP *sell );
 void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer);
-    void init_system(Sistema &sistema); //Carrega informaçoes das torres
-    void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *planofundo); //Desenha a matriz para fins de debug
+void init_system(Sistema &sistema); //Carrega informaçoes das torres
+void draw_background(int mapa[A][B], ALLEGRO_FONT *fonte, ALLEGRO_BITMAP *trilha, ALLEGRO_BITMAP *fundao, ALLEGRO_BITMAP *spawn, ALLEGRO_BITMAP *the_end, ALLEGRO_BITMAP *planofundo); //Desenha a matriz para fins de debug
 
     //Funçoes dos montros
     void init_horda(Monstro monstro[tipos_monstros][n_monstros], int n_monstros, int n_hordas, int tipos_monstros);
@@ -653,6 +654,7 @@ int init_fail (ALLEGRO_DISPLAY *janela, ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE
         al_destroy_display(janela);
         return -1;
     }
+    return 0;
 }
 
 void destroy_al(ALLEGRO_DISPLAY *janela,ALLEGRO_FONT *fonte, ALLEGRO_EVENT_QUEUE *fila_eventos, ALLEGRO_BITMAP *imagem, ALLEGRO_TIMER *timer)
@@ -1491,6 +1493,7 @@ int find_tower_ID(Torre torre[], int t, int r, int l)  //Encontra o ID da torre 
         if(torre[i].x == r * l_celula + l_celula/2 && torre[i].y == l * a_celula + a_celula/2)
             return torre[i].ID;
     }
+    return 0;
 }
 
 void sell_tower(Sistema &sistema, Torre torre[], int ID){
